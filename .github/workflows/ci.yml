@@ -2,9 +2,9 @@ name: CI/CD Pipeline - Build, Test, Security & Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, staging ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, staging ]
 
 # Cancel in-progress runs for the same PR/branch
 concurrency:
@@ -168,7 +168,7 @@ jobs:
     runs-on: ubuntu-latest
     name: 🚀 Deploy to Cloudflare Pages
     needs: [build-and-test, security-audit]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging')
     
     permissions:
       contents: read
@@ -189,7 +189,7 @@ jobs:
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        command: pages deploy out/ --project-name=prisma-rt04
+        command: pages deploy out/ --project-name=prisma-rt04 --branch=${{ github.ref_name }}
 
     - name: ✅ Deployment Summary
       run: |
