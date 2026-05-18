@@ -156,10 +156,10 @@ jobs:
         grep -l "CSRFToken\|csrf" src/lib/security*.ts && echo "✅ CSRF tokens present" || echo "❌ Missing CSRF protection"
 
         echo "--- Rate Limiting ---"
-        grep -l "rateLimit\|checkRateLimit" src/lib/security*.ts src/app/api/middleware.ts && echo "✅ Rate limiting present" || echo "❌ Missing rate limiting"
+        grep -l "rateLimit\|checkRateLimit" src/lib/security*.ts && echo "✅ Rate limiting present" || echo "❌ Missing rate limiting"
 
         echo "--- Input Sanitization ---"
-        grep -l "sanitizeInput\|sanitizeServerInput" src/lib/security*.ts src/app/api/middleware.ts && echo "✅ Input sanitization present" || echo "❌ Missing input sanitization"
+        grep -l "sanitizeInput\|sanitizeServerInput" src/lib/security*.ts && echo "✅ Input sanitization present" || echo "❌ Missing input sanitization"
 
   # ============================================
   # JOB 3: Deploy to Cloudflare Pages

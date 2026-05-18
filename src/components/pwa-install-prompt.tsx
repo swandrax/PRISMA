@@ -5,8 +5,13 @@ import { Button } from '@/components/ui/button'
 import { X, Smartphone, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+interface BeforeInstallPromptEvent extends Event {
+    prompt(): Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export function PWAInstallPrompt() {
-    const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
     const [showPrompt, setShowPrompt] = useState(false)
     const [isIOS, setIsIOS] = useState(false)
 
@@ -18,7 +23,7 @@ export function PWAInstallPrompt() {
         // Handler untuk event beforeinstallprompt (Android/Desktop)
         const handleBeforeInstallPrompt = (e: Event) => {
             e.preventDefault()
-            setDeferredPrompt(e)
+            setDeferredPrompt(e as BeforeInstallPromptEvent)
             // Tampilkan prompt setelah delay kecil agar tidak mengganggu load awal
             setTimeout(() => setShowPrompt(true), 3000)
         }
@@ -26,7 +31,9 @@ export function PWAInstallPrompt() {
         // Deteksi iOS
         const userAgent = window.navigator.userAgent.toLowerCase()
         const isIosDevice = /iphone|ipad|ipod/.test(userAgent)
-        setIsIOS(isIosDevice)
+        setTimeout(() => {
+            setIsIOS(isIosDevice)
+        }, 0)
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
 

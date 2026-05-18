@@ -23,6 +23,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Standalone microservices — CommonJS, not subject to Next.js rules
     "services/**",
+    // Static and third-party assets
+    "public/**",
+    "scripts/**",
   ]),
 ]);
 

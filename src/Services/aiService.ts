@@ -51,9 +51,9 @@ export const aiService = {
             }
 
             return await response.json();
-        } catch (error: any) {
+        } catch (error) {
             console.error("Failed to get decision", error);
-            return { decision: `Error: ${error.message || "Connection failed"}` };
+            return { decision: `Error: ${(error as Error).message || "Connection failed"}` };
         }
     },
 
@@ -86,7 +86,7 @@ export const aiService = {
             });
             if (!response.ok) throw new Error("Failed to save");
             return "Saved successfully";
-        } catch (e) {
+        } catch {
             return "Error saving memory";
         }
     },
@@ -101,7 +101,7 @@ export const aiService = {
             if (!response.ok) throw new Error("Failed to search");
             const data = await response.json();
             return data.Result;
-        } catch (e) {
+        } catch {
             return "Error searching memory";
         }
     },
@@ -112,7 +112,7 @@ export const aiService = {
             const response = await fetch(`${ApiConfig.baseUrl.imageService}/api/Image/render-page?pageName=${encodeURIComponent(pageName)}`);
             if (!response.ok) return "<p>Failed to load rendered page.</p>";
             return await response.text();
-        } catch (e) {
+        } catch {
             return "<p>Error rendering page.</p>";
         }
     },

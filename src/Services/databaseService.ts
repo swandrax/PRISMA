@@ -99,6 +99,19 @@ export interface IncidentType {
     priority: string;
 }
 
+export interface DbSecurityReport {
+    id: string | number;
+    status: string;
+    priority: string;
+    telepon_pelapor?: string;
+    telepon_display?: string;
+    jenis_kejadian: string;
+    lokasi: string;
+    tanggal_kejadian: string;
+    nama_pelapor: string;
+    kronologi?: string;
+}
+
 // Helper to simulate network delay for realistic "loading" states (reduced for SQLite speed)
 const simulateDelay = async <T>(data: T, ms: number = 50): Promise<T> => {
     return new Promise(resolve => setTimeout(() => resolve(data), ms));
@@ -191,7 +204,7 @@ export const databaseService = {
         return MockDB.getFinanceSummary();
     },
 
-    getFinancialReportPdfUrl(bulan: string, tahun: number): string {
+    getFinancialReportPdfUrl(_bulan: string, _tahun: number): string {
         // Mock PDF link or disable feature
         return `#`;
     },
@@ -214,7 +227,7 @@ export const databaseService = {
         byPriority: Record<string, number>;
     }> {
         await SqliteDB.init();
-        const reports = SqliteDB.getAllSecurityReports() as any[];
+        const reports = SqliteDB.getAllSecurityReports() as unknown as DbSecurityReport[];
         return {
             total: reports.length,
             pending: reports.filter(r => r.status === 'Pending').length,
@@ -238,7 +251,7 @@ export const databaseService = {
         telepon_display: string;
     }>> {
         await SqliteDB.init();
-        const reports = SqliteDB.getAllSecurityReports() as any[];
+        const reports = SqliteDB.getAllSecurityReports() as unknown as DbSecurityReport[];
         return reports.map(r => ({
             ...r,
             id: r.id.toString(),

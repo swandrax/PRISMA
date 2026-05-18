@@ -564,3 +564,79 @@ export function getAuditLog(): AuditEntry[] {
 if (typeof window !== 'undefined') {
     initSecurityProtections()
 }
+
+// ============================================
+// SSRF Protection
+// ============================================
+
+export function isSSRFSafe(urlStr: string): boolean {
+    if (!urlStr || typeof urlStr !== 'string') return false;
+    try {
+        const url = new URL(urlStr);
+        // Only allow http and https protocols
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+            return false;
+        }
+
+        const hostname = url.hostname.toLowerCase();
+
+        // Block localhost and loopback
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
+            return false;
+        }
+
+        // Block link-local addresses
+        if (hostname === '169.254.169.254') {
+            return false;
+        }
+
+        // Parse IP if possible to check private ranges
+        const ipParts = hostname.split('.');
+        if (ipParts.length === 4) {
+            const first = parseInt(ipParts[0], 10);
+            const second = parseInt(ipParts[1], 10);
+            if (!isNaN(first) && !isNaN(second)) {
+                // Class A: 10.0.0.0 - 10.255.255.255
+                if (first === 10) return false;
+                // Class B: 172.16.0.0 - 172.31.255.255
+                if (first === 172 && second >= 16 && second <= 31) return false;
+                // Class C: 192.168.0.0 - 192.168.255.255
+                if (first === 192 && second === 168) return false;
+                // Link-local: 169.254.0.0 - 169.254.255.255
+                if (first === 169 && second === 254) return false;
+                // Loopback: 127.0.0.0 - 127.255.255.255
+                if (first === 127) return false;
+                // Unspecified/Broadcast: 0.0.0.0
+                if (first === 0) return false;
+            }
+        }
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+// ============================================
+// Server-Side Input Sanitization
+// ============================================
+
+export function sanitizeServerInput(input: string, maxLength?: number): string {
+    if (!input || typeof input !== 'string') return '';
+    
+    let sanitized = input
+        // Remove null bytes
+        .replace(/\0/g, '')
+        // Remove script tags
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        // Remove event handlers
+        .replace(/\bon[a-z]+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, '')
+        // Remove javascript: protocol
+        .replace(/javascript\s*:/gi, '');
+
+    if (maxLength && sanitized.length > maxLength) {
+        sanitized = sanitized.slice(0, maxLength);
+    }
+
+    return sanitized;
+}

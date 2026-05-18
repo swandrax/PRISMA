@@ -16,11 +16,9 @@ import {
     FileText,
     Download,
     Plus,
-    Eye,
-    Award,
-    TrendingUp
+    Award
 } from "lucide-react"
-import { generateAuditSchedule, calculateAuditScore, AuditRecord, AuditFinding } from "@/lib/strategic-recommendations"
+import { calculateAuditScore, AuditRecord, AuditFinding } from "@/lib/strategic-recommendations"
 
 // Mock data for audit records
 const mockAuditRecords: AuditRecord[] = [
@@ -47,7 +45,7 @@ const mockAuditRecords: AuditRecord[] = [
             }
         ],
         status: 'completed',
-        signedBy: 'Ketua RT - Bapak Hendra Wijaya'
+        signedBy: 'Ketua RT - Bapak R Erry Adu Sundaru'
     },
     {
         id: '2',

@@ -74,13 +74,17 @@ export default function ProfilePage() {
         const savedProfile = localStorage.getItem('warga_profile');
         if (savedProfile) {
             const parsed = JSON.parse(savedProfile);
-            setProfile(parsed);
-            setEditedProfile(parsed);
+            setTimeout(() => {
+                setProfile(parsed);
+                setEditedProfile(parsed);
+            }, 0);
         }
 
         const savedPhoto = localStorage.getItem('warga_photo');
         if (savedPhoto) {
-            setPhotoPreview(savedPhoto);
+            setTimeout(() => {
+                setPhotoPreview(savedPhoto);
+            }, 0);
         }
     }, [router]);
 

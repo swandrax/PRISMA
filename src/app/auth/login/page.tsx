@@ -154,7 +154,7 @@ export default function LoginPage() {
 
                     <blockquote className="border-l-2 border-white/30 pl-4 mt-6">
                         <p className="text-base italic opacity-90">
-                            "Platform PRISMA membawa RT 04 ke era digital dengan transparansi penuh."
+                            &ldquo;Platform PRISMA membawa RT 04 ke era digital dengan transparansi penuh.&rdquo;
                         </p>
                         <footer className="text-sm opacity-70 mt-2">— Ketua RT 04 RW 09 Kemayoran</footer>
                     </blockquote>

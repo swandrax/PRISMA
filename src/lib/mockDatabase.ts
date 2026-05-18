@@ -5,8 +5,8 @@ import {
     LetterTemplate,
     MonthlyReport,
     ExpenseSummary,
-    IncidentType,
-    SecurityReportSubmission
+    SecurityReportSubmission,
+    DbSecurityReport
 } from '../Services/databaseService';
 
 // ================= SEED DATA =================
@@ -20,7 +20,7 @@ const SEED_WARGA: WargaData[] = [
 ];
 
 const SEED_PENGURUS: PengurusData[] = [
-    { id: 1, nama: "Pak RT", jabatan: "Ketua RT", periode: "2024-2027" },
+    { id: 1, nama: "Bapak R Erry Adu Sundaru", jabatan: "Ketua RT", periode: "2024-2027" },
     { id: 2, nama: "Bu Sekretaris", jabatan: "Sekretaris", periode: "2024-2027" },
     { id: 3, nama: "Pak Bendahara", jabatan: "Bendahara", periode: "2024-2027" }
 ];
@@ -59,7 +59,7 @@ const SEED_FINANCE: MonthlyReport[] = [
     }
 ];
 
-const SEED_SECURITY_INCIDENTS: any[] = [
+const SEED_SECURITY_INCIDENTS: DbSecurityReport[] = [
     {
         id: "inc1",
         jenis_kejadian: "Pencurian",
@@ -145,7 +145,7 @@ export const MockDB = {
         const templates = getStorage<LetterTemplate[]>(STORAGE_KEYS.LETTERS, SEED_LETTERS);
         return templates.find(t => t.id === id) || null;
     },
-    submitLetter: (templateId: string, data: any): string => {
+    submitLetter: (_templateId: string, _data: Record<string, unknown>): string => {
         // Just mock success, no storage needed for this simple version unless we add a "My Requests" feature
         return `REQ-${Date.now()}`;
     },
@@ -153,7 +153,7 @@ export const MockDB = {
     // Finance
     getFinanceReports: (): MonthlyReport[] => getStorage(STORAGE_KEYS.FINANCE, SEED_FINANCE),
     getFinanceSummary: (): ExpenseSummary => {
-        const reports = getStorage<MonthlyReport[]>(STORAGE_KEYS.FINANCE, SEED_FINANCE);
+        const _reports = getStorage<MonthlyReport[]>(STORAGE_KEYS.FINANCE, SEED_FINANCE);
         // Simple mock calculation
         return {
             avgMonthlyExpense: 500000,
@@ -167,7 +167,7 @@ export const MockDB = {
     // Security
     getSecurityReports: () => getStorage(STORAGE_KEYS.SECURITY, SEED_SECURITY_INCIDENTS),
     addSecurityReport: (report: SecurityReportSubmission) => {
-        const current = getStorage<any[]>(STORAGE_KEYS.SECURITY, SEED_SECURITY_INCIDENTS);
+        const current = getStorage<DbSecurityReport[]>(STORAGE_KEYS.SECURITY, SEED_SECURITY_INCIDENTS);
         const newReport = {
             id: `inc${Date.now()}`,
             ...report,

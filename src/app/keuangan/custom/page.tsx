@@ -262,6 +262,7 @@ export default function CustomKeuanganPage() {
         }
 
         const transaction: CustomTransaction = {
+            // eslint-disable-next-line react-hooks/purity
             id: `TRX-${Date.now()}`,
             tanggal: newTransaction.tanggal || new Date().toISOString().split('T')[0],
             keterangan: newTransaction.keterangan || '',

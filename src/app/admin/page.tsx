@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
     Users,
@@ -11,7 +10,6 @@ import {
     Shield,
     Folder,
     Settings,
-    BarChart3,
     AlertTriangle,
     CheckCircle,
     Clock,
@@ -126,14 +124,7 @@ function formatCurrency(amount: number): string {
 }
 
 export default function AdminDashboard() {
-    const [stats, setStats] = useState<DashboardStats>(defaultStats);
-    const [loading, setLoading] = useState(false);
-
-    // In production, fetch real stats from API
-    useEffect(() => {
-        // Simulated API call
-        setStats(defaultStats);
-    }, []);
+    const stats = defaultStats;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8">

@@ -294,7 +294,7 @@ describe('Security Audit Log', () => {
     })
 })
 
-import { isSSRFSafe, sanitizeServerInput } from '../app/api/middleware'
+import { isSSRFSafe, sanitizeServerInput } from './security'
 
 describe('SSRF Protection - isSSRFSafe', () => {
     it('should allow safe public URLs', () => {

@@ -20,7 +20,7 @@ describe('Demo Credentials System', () => {
             const user = authenticateDemo('rerry@prisma.dev', 'Pr1sm4RT04!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('admin')
-            expect(user?.nama).toBe('Rerry Adusundaru')
+            expect(user?.nama).toBe('R Erry Adu Sundaru')
         })
 
         it('should authenticate valid warga credentials', () => {
@@ -79,7 +79,7 @@ describe('Demo Credentials System', () => {
         it('should find admin user by email', () => {
             const user = getDemoUserByEmail('rerry@prisma.dev')
             expect(user).not.toBeNull()
-            expect(user?.nama).toBe('Rerry Adusundaru')
+            expect(user?.nama).toBe('R Erry Adu Sundaru')
             expect(user?.role).toBe('admin')
         })
 

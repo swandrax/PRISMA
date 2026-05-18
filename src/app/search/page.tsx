@@ -6,9 +6,25 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Search as SearchIcon, MapPin, Loader2 } from "lucide-react"
 
+interface SearchResultItem {
+    title: string;
+    link?: string;
+    snippet?: string;
+    address?: string;
+    gps_coordinates?: {
+        latitude: number;
+        longitude: number;
+    };
+}
+
+interface SearchResults {
+    organic_results?: SearchResultItem[];
+    local_results?: SearchResultItem[];
+}
+
 export default function SearchPage() {
     const [query, setQuery] = useState("")
-    const [results, setResults] = useState<any>(null)
+    const [results, setResults] = useState<SearchResults | null>(null)
     const [loading, setLoading] = useState(false)
     const [type, setType] = useState("search")
 
@@ -64,7 +80,7 @@ export default function SearchPage() {
                 <div className="space-y-4">
                     {results && results.organic_results && (
                         <div className="grid gap-4">
-                            {results.organic_results.map((result: any, index: number) => (
+                            {results.organic_results.map((result: SearchResultItem, index: number) => (
                                 <Card key={index}>
                                     <CardHeader>
                                         <CardTitle className="text-lg">
@@ -84,7 +100,7 @@ export default function SearchPage() {
 
                     {results && results.local_results && (
                         <div className="grid gap-4 md:grid-cols-2">
-                            {results.local_results.map((result: any, index: number) => (
+                            {results.local_results.map((result: SearchResultItem, index: number) => (
                                 <Card key={index}>
                                     <CardHeader>
                                         <CardTitle className="text-lg">{result.title}</CardTitle>

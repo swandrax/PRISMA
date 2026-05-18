@@ -5,11 +5,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
     Phone,
-    Mail,
     Crown,
     BookOpen,
     Wallet,
-    Shield,
     Users,
     ChevronRight,
     Lightbulb
@@ -28,11 +26,11 @@ interface OfficialMember {
 
 const officials: OfficialMember[] = [
     {
-        name: "Bpk. Rerry Adusundaru",
+        name: "Bapak R Erry Adu Sundaru",
         role: "Ketua RT 04",
         roleId: "ketua",
         icon: Crown,
-        phone: "6287872004448",
+        phone: "",
         description: "Koordinator utama kegiatan dan kebijakan RT 04. Bertanggung jawab atas keamanan dan kesejahteraan warga.",
         gradient: "from-blue-600 to-indigo-700",
         accent: "ring-blue-500/30",
@@ -42,7 +40,7 @@ const officials: OfficialMember[] = [
         role: "Sekretaris",
         roleId: "sekretaris",
         icon: BookOpen,
-        phone: "6287872004448",
+        phone: "",
         description: "Menangani administrasi surat-menyurat, pencatatan data warga, dan dokumentasi kegiatan RT.",
         gradient: "from-emerald-600 to-teal-700",
         accent: "ring-emerald-500/30",
@@ -52,17 +50,17 @@ const officials: OfficialMember[] = [
         role: "Bendahara",
         roleId: "bendahara",
         icon: Wallet,
-        phone: "6287872004448",
+        phone: "",
         description: "Mengelola keuangan RT meliputi iuran warga, pengeluaran operasional, dan pelaporan transparan.",
         gradient: "from-amber-600 to-orange-700",
         accent: "ring-amber-500/30",
     },
     {
         name: "Bpk. Dika",
-        role: "Riset & Pengembangan (R&D)",
+        role: "Programmer & Technical Engineer",
         roleId: "rnd",
         icon: Lightbulb,
-        phone: "6287872004448",
+        phone: "6287782380077",
         description: "Bertanggung jawab atas riset, inovasi, pengembangan program lingkungan, serta penanganan CCTV.",
         gradient: "from-purple-600 to-fuchsia-700",
         accent: "ring-purple-500/30",

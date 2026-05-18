@@ -36,7 +36,7 @@ export default function RegisterPage() {
                 <div className="relative z-20 mt-auto">
                     <blockquote className="space-y-2">
                         <p className="text-lg">
-                            "Platform ini sangat membantu saya dalam mengurus surat-surat administrasi tanpa harus bolak-balik ke rumah Pak RT."
+                            &ldquo;Platform ini sangat membantu saya dalam mengurus surat-surat administrasi tanpa harus bolak-balik ke rumah Pak RT.&rdquo;
                         </p>
                         <footer className="text-sm">Bapak Budi Santoso</footer>
                     </blockquote>

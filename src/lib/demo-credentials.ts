@@ -26,7 +26,7 @@ const PRIVATE_USERS: DemoUser[] = [
         id: 1,
         email: "rerry@prisma.dev",
         password: "Pr1sm4RT04!",
-        nama: "Rerry Adusundaru",
+        nama: "R Erry Adu Sundaru",
         role: "admin",
         no_telepon: "6287872004448",
         tanggal_lahir: "1985-03-15",

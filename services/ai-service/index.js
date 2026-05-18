@@ -77,7 +77,7 @@ app.post('/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const systemPrompt = `Kamu adalah SIAGA (Sistem Informasi Asisten Gagasan Aktif), asisten AI untuk warga RT 04/RW 09 Kelurahan Kebon Jeruk.
+  const systemPrompt = `Kamu adalah SIAGA (Sistem Informasi Asisten Gagasan Aktif), asisten AI untuk warga RT 04/RW 09 Kemayoran. Ketua RT 04/RW 09 Kemayoran saat ini adalah Bapak R Erry Adu Sundaru.
 ${context ? `\nKonteks: ${context}` : ''}
 Berikan jawaban yang singkat, ramah, dan informatif dalam Bahasa Indonesia.`;
 

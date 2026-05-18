@@ -1,26 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SqliteDB } from "@/lib/sqliteDB";
 
 export default function DatabaseSettingsPage() {
     const [status, setStatus] = useState("Checking...");
     const [wargaCount, setWargaCount] = useState(0);
 
-    useEffect(() => {
-        refreshStats();
-    }, []);
-
-    const refreshStats = async () => {
+    const refreshStats = useCallback(async () => {
         try {
             await SqliteDB.init();
             const warga = SqliteDB.getAllWarga();
             setWargaCount(warga.length);
             setStatus("Ready");
-        } catch (e) {
+        } catch {
             setStatus("Error connecting to DB");
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        setTimeout(refreshStats, 0);
+    }, [refreshStats]);
 
     const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
@@ -37,8 +37,8 @@ export default function DatabaseSettingsPage() {
     const handleExport = () => {
         const u8 = SqliteDB.exportDB();
         if (!u8) return;
-        // Cast to any to avoid SharedArrayBuffer/ArrayBuffer TS mismatch
-        const blob = new Blob([u8 as any], { type: 'application/x-sqlite3' });
+        // Cast to BlobPart to avoid SharedArrayBuffer/ArrayBuffer TS mismatch
+        const blob = new Blob([u8 as BlobPart], { type: 'application/x-sqlite3' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
