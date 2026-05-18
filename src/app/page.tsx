@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import { HeroCarousel } from "@/components/home/hero-carousel"
 import { Skeleton } from "@/components/ui/skeleton"
+import { RealtimeNotifications } from "@/components/home/realtime-notifications"
 
 // Lazy load heavy components below the fold to reduce initial bundle size
 // and memory usage (Optimasi Payload & Memory)
@@ -110,6 +111,9 @@ export default function Home() {
       </section>
 
       <ContactSection />
+      
+      {/* Realtime Notifications Overlay */}
+      <RealtimeNotifications />
     </div>
   );
 }

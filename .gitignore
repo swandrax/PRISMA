@@ -87,3 +87,8 @@ public/lighthouse-*.json
 
 # Bot temp files
 bot-temp/
+
+# Secure files
+prompt/
+docs/
+keys/

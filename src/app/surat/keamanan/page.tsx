@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
-    ArrowLeft,
     AlertTriangle,
     Phone,
     User,
@@ -18,8 +17,10 @@ import {
     Send,
     Eye,
     EyeOff,
-    Info
+    Info,
+    QrCode
 } from "lucide-react"
+import { FaWhatsapp } from "react-icons/fa"
 import { useKeamananViewModel } from "@/viewmodels/useKeamananViewModel"
 
 export default function LaporanKeamananPage() {
@@ -201,39 +202,40 @@ export default function LaporanKeamananPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-slate-900 dark:via-red-900 dark:to-slate-900 py-8 transition-colors duration-300">
             <div className="container mx-auto px-4 max-w-4xl">
                 {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
-                    <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+                    <Button variant="outline" asChild className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-200 border-none w-fit">
                         <Link href="/surat">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            <FaWhatsapp className="h-5 w-5 mr-2 text-green-500" />
                             Kembali
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Laporan Keamanan</h1>
-                        <p className="text-red-200">Laporkan kejadian keamanan di lingkungan RT</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Laporan Keamanan</h1>
+                        <p className="text-red-600 dark:text-red-200">Laporkan kejadian keamanan di lingkungan RT</p>
                     </div>
                 </div>
 
                 {/* Security Info Banner */}
-                <Card className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 border-blue-500/30 mb-8">
+                <Card className="bg-blue-50 dark:bg-gradient-to-r dark:from-blue-900/50 dark:to-cyan-900/50 border-blue-200 dark:border-blue-500/30 mb-8">
                     <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-500/20 rounded-lg">
-                                <Lock className="h-6 w-6 text-blue-400" />
+                        <div className="flex flex-col md:flex-row items-center gap-4">
+                            <div className="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-lg">
+                                <Lock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                            <div className="flex-1">
-                                <h4 className="font-semibold text-white">Keamanan Data Terjamin</h4>
-                                <p className="text-sm text-blue-200">
-                                    Data Anda dilindungi dengan enkripsi bcrypt, OWASP Web Security, proteksi OSINT, dan pencegahan XSS injection.
+                            <div className="flex-1 text-center md:text-left">
+                                <h4 className="font-semibold text-blue-900 dark:text-white">Keamanan Terjamin & Tervalidasi</h4>
+                                <p className="text-sm text-blue-700 dark:text-blue-200 mt-1">
+                                    Data dilindungi enkripsi bcrypt. Laporan akan divalidasi dengan QR Code unik sebagai pertanggungjawaban legal agar tidak sembarang melapor.
                                 </p>
                             </div>
-                            <div className="hidden md:flex gap-2">
-                                <span className="px-2 py-1 bg-blue-500/20 rounded text-xs text-blue-300">bcrypt</span>
-                                <span className="px-2 py-1 bg-green-500/20 rounded text-xs text-green-300">OWASP</span>
-                                <span className="px-2 py-1 bg-purple-500/20 rounded text-xs text-purple-300">Anti-XSS</span>
+                            <div className="flex gap-2">
+                                <div className="p-2 bg-white dark:bg-white/10 rounded-lg border border-gray-200 dark:border-white/20 flex flex-col items-center justify-center min-w-[80px]">
+                                    <QrCode className="h-8 w-8 text-slate-800 dark:text-white" />
+                                    <span className="text-[10px] font-bold mt-1 text-slate-600 dark:text-gray-300">VALIDATOR</span>
+                                </div>
                             </div>
                         </div>
                     </CardContent>

@@ -107,46 +107,46 @@ export default function LayananPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8">
+        <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-8 transition-colors duration-300">
             <div className="container mx-auto px-4 max-w-6xl">
                 {/* Header */}
                 <div className="flex items-center gap-4 mb-8">
-                    <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+                    <Button variant="outline" asChild className="border-slate-200 text-slate-800 bg-white hover:bg-slate-100 dark:bg-transparent dark:border-white/20 dark:text-white dark:hover:bg-white/10">
                         <Link href="/">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Kembali
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Layanan Digital</h1>
-                        <p className="text-gray-400">Pilih layanan yang Anda butuhkan</p>
+                        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Layanan Digital</h1>
+                        <p className="text-slate-600 dark:text-gray-400">Pilih layanan yang Anda butuhkan</p>
                     </div>
                 </div>
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-4 text-center">
                             <div className="text-3xl font-bold text-purple-400">{stats.totalTemplates}</div>
-                            <div className="text-sm text-gray-400">Template Surat</div>
+                            <div className="text-sm text-slate-600 dark:text-gray-400">Template Surat</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-4 text-center">
                             <div className="text-3xl font-bold text-green-400">3</div>
-                            <div className="text-sm text-gray-400">Laporan Bulan</div>
+                            <div className="text-sm text-slate-600 dark:text-gray-400">Laporan Bulan</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-4 text-center">
                             <div className="text-3xl font-bold text-blue-400">{stats.securityReports}</div>
-                            <div className="text-sm text-gray-400">Laporan Keamanan</div>
+                            <div className="text-sm text-slate-600 dark:text-gray-400">Laporan Keamanan</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-4 text-center">
                             <div className="text-3xl font-bold text-amber-400">{stats.reportsProcessed}</div>
-                            <div className="text-sm text-gray-400">Selesai Diproses</div>
+                            <div className="text-sm text-slate-600 dark:text-gray-400">Selesai Diproses</div>
                         </CardContent>
                     </Card>
                 </div>
@@ -185,43 +185,43 @@ export default function LayananPage() {
 
                 {/* Feature Highlights */}
                 <div className="grid md:grid-cols-3 gap-4 mb-8">
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-green-500/20 rounded-lg">
                                     <CheckCircle className="h-5 w-5 text-green-400" />
                                 </div>
-                                <h4 className="font-semibold text-white">Transparan</h4>
+                                <h4 className="font-semibold text-slate-900 dark:text-white">Transparan</h4>
                             </div>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-slate-600 dark:text-gray-400 text-sm">
                                 Semua laporan keuangan dapat diunduh dan diverifikasi oleh warga
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-blue-500/20 rounded-lg">
                                     <Lock className="h-5 w-5 text-blue-400" />
                                 </div>
-                                <h4 className="font-semibold text-white">Aman</h4>
+                                <h4 className="font-semibold text-slate-900 dark:text-white">Aman</h4>
                             </div>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-slate-600 dark:text-gray-400 text-sm">
                                 Data dilindungi dengan bcrypt, OWASP security, dan proteksi XSS
                             </p>
                         </CardContent>
                     </Card>
 
-                    <Card className="bg-white/5 backdrop-blur-sm border-white/10">
+                    <Card className="bg-white dark:bg-white/5 backdrop-blur-sm border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-purple-500/20 rounded-lg">
                                     <Clock className="h-5 w-5 text-purple-400" />
                                 </div>
-                                <h4 className="font-semibold text-white">Cepat</h4>
+                                <h4 className="font-semibold text-slate-900 dark:text-white">Cepat</h4>
                             </div>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-slate-600 dark:text-gray-400 text-sm">
                                 Proses pengajuan surat dan laporan secara online 24/7
                             </p>
                         </CardContent>
@@ -229,33 +229,33 @@ export default function LayananPage() {
                 </div>
 
                 {/* Security Info */}
-                <Card className="bg-gradient-to-r from-slate-800 to-slate-700 border-slate-600">
+                <Card className="bg-white dark:bg-gradient-to-r dark:from-slate-800 dark:to-slate-700 border-slate-200 dark:border-slate-600 shadow-sm dark:shadow-none">
                     <CardContent className="p-6">
                         <div className="flex items-start gap-4">
                             <div className="p-3 bg-cyan-500/20 rounded-xl">
                                 <Shield className="h-8 w-8 text-cyan-400" />
                             </div>
                             <div>
-                                <h4 className="font-semibold text-white text-lg mb-2">Keamanan Data</h4>
-                                <p className="text-gray-400 mb-4">
+                                <h4 className="font-semibold text-slate-900 dark:text-white text-lg mb-2">Keamanan Data</h4>
+                                <p className="text-slate-600 dark:text-gray-400 mb-4">
                                     Sistem PRISMA RT 04 mengimplementasikan standar keamanan tingkat tinggi untuk melindungi data warga:
                                 </p>
                                 <div className="grid md:grid-cols-4 gap-3">
                                     <div className="flex items-center gap-2 text-sm">
                                         <span className="px-2 py-1 bg-blue-500/20 rounded text-blue-300">bcrypt</span>
-                                        <span className="text-gray-400">Enkripsi password</span>
+                                        <span className="text-slate-600 dark:text-gray-400">Enkripsi password</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <span className="px-2 py-1 bg-green-500/20 rounded text-green-300">OWASP</span>
-                                        <span className="text-gray-400">Security headers</span>
+                                        <span className="text-slate-600 dark:text-gray-400">Security headers</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <span className="px-2 py-1 bg-purple-500/20 rounded text-purple-300">Anti-XSS</span>
-                                        <span className="text-gray-400">Input sanitization</span>
+                                        <span className="text-slate-600 dark:text-gray-400">Input sanitization</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm">
                                         <span className="px-2 py-1 bg-amber-500/20 rounded text-amber-300">OSINT</span>
-                                        <span className="text-gray-400">Data masking</span>
+                                        <span className="text-slate-600 dark:text-gray-400">Data masking</span>
                                     </div>
                                 </div>
                             </div>
