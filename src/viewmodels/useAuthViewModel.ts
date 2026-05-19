@@ -92,9 +92,9 @@ export function useAuthViewModel() {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // Import demo credentials dynamically (existing system)
+      // Import credentials module dynamically (bcrypt-hashed, async)
       const { authenticateDemo } = await import('@/lib/demo-credentials');
-      const user = authenticateDemo(request.email, request.password);
+      const user = await authenticateDemo(request.email, request.password);
 
       if (user) {
         const credentials: SecureCredentials = {

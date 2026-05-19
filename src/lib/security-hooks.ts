@@ -91,8 +91,10 @@ export function useSecureAuth() {
             // Simulated authentication - replace with actual API call
             // In production, this would be: await secureFetch('/api/auth/login', {...})
 
-            // Generate session token
-            const sessionToken = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+            // SEC-007 FIX: Use CSPRNG for session token
+            const tokenBytes = new Uint8Array(32)
+            crypto.getRandomValues(tokenBytes)
+            const sessionToken = Array.from(tokenBytes, b => b.toString(16).padStart(2, '0')).join('')
 
             const credentials: SecureCredentials = {
                 userId: sanitizedId,

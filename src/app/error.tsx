@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { AlertTriangle, Home, RefreshCw, ArrowLeft, Bug, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,8 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
+    const router = useRouter()
+
     useEffect(() => {
         // Log error to console in development
         console.error("Error caught by error boundary:", error)
@@ -69,11 +72,9 @@ export default function Error({ error, reset }: ErrorProps) {
 
                     {/* Additional Navigation */}
                     <div className="flex justify-center pt-4 border-t">
-                        <Button variant="ghost" size="sm" asChild>
-                            <Link href="javascript:history.back()">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Kembali ke Halaman Sebelumnya
-                            </Link>
+                        <Button variant="ghost" size="sm" onClick={() => router.back()}>
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Kembali ke Halaman Sebelumnya
                         </Button>
                     </div>
 

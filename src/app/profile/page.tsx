@@ -91,6 +91,20 @@ export default function ProfilePage() {
     const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // SEC-009 FIX: Validate file type and size before processing
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            const maxSizeBytes = 2 * 1024 * 1024; // 2MB max
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format file tidak didukung. Gunakan JPEG, PNG, WebP, atau GIF.');
+                return;
+            }
+
+            if (file.size > maxSizeBytes) {
+                alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64 = reader.result as string;
@@ -135,20 +149,20 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8">
+        <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 dark:from-slate-900 dark:via-blue-900 dark:to-slate-900 py-8">
             <div className="container mx-auto px-4 max-w-4xl">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+                        <Button variant="outline" asChild className="border-slate-300 dark:border-white/20 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10">
                             <Link href="/">
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Kembali
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl font-bold text-white">Profil Saya</h1>
-                            <p className="text-blue-200">Kelola data dan pengaturan akun</p>
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Profil Saya</h1>
+                            <p className="text-blue-600 dark:text-blue-200">Kelola data dan pengaturan akun</p>
                         </div>
                     </div>
                     <div className="flex gap-2">

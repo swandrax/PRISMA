@@ -63,17 +63,22 @@ export default function LoginPage() {
         // Simulate API call with delay
         await new Promise(resolve => setTimeout(resolve, 1000))
 
-        // Authenticate with demo credentials
-        const user = authenticateDemo(email, password)
+        // Authenticate with bcrypt-hashed credentials (async)
+        const user = await authenticateDemo(email, password)
 
         if (user) {
             setLoginSuccess(true)
+
+            // SEC-007 FIX: Use CSPRNG for session token instead of Math.random()
+            const tokenBytes = new Uint8Array(32);
+            crypto.getRandomValues(tokenBytes);
+            const sessionToken = Array.from(tokenBytes, b => b.toString(16).padStart(2, '0')).join('');
 
             // SECURITY: Store credentials securely (encrypted)
             storeCredentials({
                 userId: String(user.id),
                 role: user.role as 'admin' | 'staff' | 'warga',
-                sessionToken: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                sessionToken,
                 expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
             })
 

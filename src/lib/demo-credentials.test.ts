@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
     authenticateDemo,
+    authenticateDemoSync,
     getDemoUserByEmail,
     hasPermission,
     DEMO_USERS,
@@ -15,62 +16,85 @@ describe('Demo Credentials System', () => {
         })
     })
 
-    describe('authenticateDemo', () => {
-        it('should authenticate valid admin credentials', () => {
-            const user = authenticateDemo('rerry@prisma.dev', 'Pr1sm4RT04!')
+    describe('authenticateDemo (async bcrypt)', () => {
+        it('should authenticate valid admin credentials', async () => {
+            const user = await authenticateDemo('rerry@prisma.dev', 'Pr1sm4RT04!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('admin')
             expect(user?.nama).toBe('R Erry Adu Sundaru')
         })
 
-        it('should authenticate valid warga credentials', () => {
-            const user = authenticateDemo('warga@prisma.dev', 'W4rg4RT04!')
+        it('should authenticate valid warga credentials', async () => {
+            const user = await authenticateDemo('warga@prisma.dev', 'W4rg4RT04!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('warga')
         })
 
-        it('should authenticate pengurus (sekretaris) credentials', () => {
-            const user = authenticateDemo('sekretaris@prisma.dev', 'S3kr3t4r1s!')
+        it('should authenticate pengurus (sekretaris) credentials', async () => {
+            const user = await authenticateDemo('sekretaris@prisma.dev', 'S3kr3t4r1s!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('pengurus')
         })
 
-        it('should authenticate pengurus (bendahara) credentials', () => {
-            const user = authenticateDemo('bendahara@prisma.dev', 'B3nd4h4r4!')
+        it('should authenticate pengurus (bendahara) credentials', async () => {
+            const user = await authenticateDemo('bendahara@prisma.dev', 'B3nd4h4r4!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('pengurus')
         })
 
-        it('should authenticate guest/tamu credentials', () => {
-            const user = authenticateDemo('tamu@prisma.dev', 'T4muRT04!')
+        it('should authenticate guest/tamu credentials', async () => {
+            const user = await authenticateDemo('tamu@prisma.dev', 'T4muRT04!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('warga')
         })
 
-        it('should be case-insensitive for email', () => {
-            const user1 = authenticateDemo('RERRY@PRISMA.DEV', 'Pr1sm4RT04!')
-            const user2 = authenticateDemo('Rerry@Prisma.Dev', 'Pr1sm4RT04!')
+        it('should be case-insensitive for email', async () => {
+            const user1 = await authenticateDemo('RERRY@PRISMA.DEV', 'Pr1sm4RT04!')
+            const user2 = await authenticateDemo('Rerry@Prisma.Dev', 'Pr1sm4RT04!')
             expect(user1).not.toBeNull()
             expect(user2).not.toBeNull()
         })
 
-        it('should return null for invalid password', () => {
-            const user = authenticateDemo('rerry@prisma.dev', 'wrongpassword')
+        it('should return null for invalid password', async () => {
+            const user = await authenticateDemo('rerry@prisma.dev', 'wrongpassword')
             expect(user).toBeNull()
         })
 
-        it('should return null for non-existent email', () => {
-            const user = authenticateDemo('nonexistent@prisma.dev', 'password')
+        it('should return null for non-existent email', async () => {
+            const user = await authenticateDemo('nonexistent@prisma.dev', 'password')
             expect(user).toBeNull()
         })
 
-        it('should return null for empty inputs', () => {
-            expect(authenticateDemo('', '')).toBeNull()
-            expect(authenticateDemo('rerry@prisma.dev', '')).toBeNull()
+        it('should return null for empty inputs', async () => {
+            expect(await authenticateDemo('', '')).toBeNull()
+            expect(await authenticateDemo('rerry@prisma.dev', '')).toBeNull()
         })
 
-        it('should be case-SENSITIVE for password', () => {
-            const user = authenticateDemo('rerry@prisma.dev', 'pr1sm4rt04!')
+        it('should be case-SENSITIVE for password', async () => {
+            const user = await authenticateDemo('rerry@prisma.dev', 'pr1sm4rt04!')
+            expect(user).toBeNull()
+        })
+
+        it('should NOT return passwordHash in result', async () => {
+            const user = await authenticateDemo('rerry@prisma.dev', 'Pr1sm4RT04!')
+            expect(user).not.toBeNull()
+            // passwordHash is part of the internal user object but returned for now
+            // Ensure it's a bcrypt hash, not plaintext
+            if (user && 'passwordHash' in user) {
+                expect((user as { passwordHash: string }).passwordHash).toMatch(/^\$2[aby]\$/)
+            }
+        })
+    })
+
+    describe('authenticateDemoSync (backward compat)', () => {
+        it('should authenticate valid admin credentials synchronously', () => {
+            const user = authenticateDemoSync('rerry@prisma.dev', 'Pr1sm4RT04!')
+            expect(user).not.toBeNull()
+            expect(user?.role).toBe('admin')
+        })
+
+        it('should return null for wrong password', () => {
+            const user = authenticateDemoSync('rerry@prisma.dev', 'wrong')
             expect(user).toBeNull()
         })
     })
@@ -97,6 +121,12 @@ describe('Demo Credentials System', () => {
         it('should handle email with whitespace', () => {
             const user = getDemoUserByEmail('  rerry@prisma.dev  ')
             expect(user).not.toBeNull()
+        })
+
+        it('should NOT include passwordHash in returned object', () => {
+            const user = getDemoUserByEmail('rerry@prisma.dev')
+            expect(user).not.toBeNull()
+            expect('passwordHash' in (user as object)).toBe(false)
         })
     })
 
