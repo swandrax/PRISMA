@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, Loader2, CheckCircle, AlertCircle, Shield } from "lucide-react"
-import { authenticateDemo } from "@/lib/demo-credentials"
+import { signIn } from "@/lib/supabase-auth"
 import {
     checkRateLimit,
     resetRateLimit,
@@ -60,13 +60,11 @@ export default function LoginPage() {
             return
         }
 
-        // Simulate API call with delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Authenticate via Supabase Auth (with automatic demo fallback)
+        const result = await signIn(email, password)
 
-        // Authenticate with bcrypt-hashed credentials (async)
-        const user = await authenticateDemo(email, password)
-
-        if (user) {
+        if (result.success && result.user) {
+            const user = result.user
             setLoginSuccess(true)
 
             // SEC-007 FIX: Use CSPRNG for session token instead of Math.random()
@@ -77,7 +75,7 @@ export default function LoginPage() {
             // SECURITY: Store credentials securely (encrypted)
             storeCredentials({
                 userId: String(user.id),
-                role: user.role as 'admin' | 'staff' | 'warga',
+                role: user.role === 'admin' ? 'admin' : (user.role === 'pengurus' ? 'staff' : 'warga'),
                 sessionToken,
                 expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
             })
@@ -88,14 +86,14 @@ export default function LoginPage() {
                 id: user.id,
                 nama: user.nama,
                 email: user.email,
-                telepon: user.no_telepon, // Normalized key
-                no_telepon: user.no_telepon,
-                tanggal_lahir: user.tanggal_lahir,
-                alamat: user.alamat,
-                blok: user.blok,
-                no_rumah: user.no_rumah,
-                foto_path: user.foto_path,
-                status: user.status,
+                telepon: user.metadata.no_telepon || '', // Normalized key
+                no_telepon: user.metadata.no_telepon || '',
+                tanggal_lahir: user.metadata.tanggal_lahir || '',
+                alamat: user.metadata.alamat || '',
+                blok: user.metadata.blok || '',
+                no_rumah: user.metadata.no_rumah || '',
+                foto_path: user.avatarUrl || '',
+                status: user.metadata.status || 'Aktif',
                 role: user.role,
                 permissions: user.permissions,
                 tanggal_daftar: new Date().toISOString().split('T')[0],
@@ -116,7 +114,7 @@ export default function LoginPage() {
         } else {
             // SECURITY: Log failed attempt
             logSecurityEvent('login_failed', false, `Email: ${email}`)
-            setLoginError("Email atau password tidak ditemukan.")
+            setLoginError(result.error || "Email atau password tidak ditemukan.")
             setIsLoading(false)
         }
     }

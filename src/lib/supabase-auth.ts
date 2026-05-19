@@ -108,7 +108,7 @@ export async function signIn(email: string, password: string): Promise<AuthResul
 export async function signUp(
     email: string,
     password: string,
-    metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string }
+    metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string }
 ): Promise<AuthResult> {
     const supabase = createClient();
 
@@ -122,6 +122,7 @@ export async function signUp(
                     no_telepon: metadata.noTelepon || '',
                     blok: metadata.blok || '',
                     no_rumah: metadata.noRumah || '',
+                    alamat: metadata.alamat || '',
                     role: 'warga', // Default role for new registrations
                 },
             },
@@ -132,6 +133,32 @@ export async function signUp(
         }
 
         if (data.user) {
+            // Write to the public database tables ('warga' and 'users') for dynamic CRUD and Realtime data sync
+            try {
+                const combinedAddress = metadata.alamat || `${metadata.blok || ''} ${metadata.noRumah || ''}`.trim() || 'RT 04';
+                
+                // 1. Sync to public.users table
+                await supabase.from('users').upsert({
+                    id: data.user.id,
+                    name: metadata.nama,
+                    email: email,
+                    role: 'warga',
+                    phone: metadata.noTelepon || '',
+                    address: combinedAddress,
+                });
+
+                // 2. Sync to public.warga table
+                await supabase.from('warga').upsert({
+                    nama: metadata.nama,
+                    alamat: combinedAddress,
+                    status: 'Baru',
+                    telepon: metadata.noTelepon || '',
+                    email: email
+                });
+            } catch (dbErr) {
+                console.warn('Supabase DB sync error during registration:', dbErr);
+            }
+
             const authUser = mapSupabaseUser(data.user);
             return { success: true, user: authUser };
         }
