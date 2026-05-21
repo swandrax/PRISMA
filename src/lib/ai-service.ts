@@ -4,6 +4,8 @@
  * Falls back to mock responses when backend is unavailable
  */
 
+import { sanitizeInput, sanitizeServerInput } from './security';
+
 // Types
 export interface SentimentResult {
     text: string;
@@ -73,18 +75,23 @@ class AIServiceClient {
      * Falls back to mock if backend is unavailable
      */
     async chat(message: string): Promise<ChatResponse> {
+        // SEC-FIX AI-1: Sanitize user input before sending to LLM
+        const sanitizedMessage = sanitizeServerInput(message, 2000);
+
         try {
             const res = await fetch(this.chatApiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message }),
+                body: JSON.stringify({ message: sanitizedMessage }),
             });
 
             if (res.ok) {
                 const data = await res.json();
+                // SEC-FIX AI-4: Sanitize LLM response to prevent stored XSS
+                const safeReply = sanitizeServerInput(data.reply || 'Tidak ada respons.', 5000);
                 return {
-                    user_input: message,
-                    response: data.reply || 'Tidak ada respons.',
+                    user_input: sanitizedMessage,
+                    response: safeReply,
                     intent: 'ai_response',
                     confidence: 0.95
                 };
@@ -94,7 +101,7 @@ class AIServiceClient {
         }
 
         // Fallback: simple keyword matching
-        return this._mockChat(message);
+        return this._mockChat(sanitizedMessage);
     }
 
     private _mockChat(message: string): ChatResponse {

@@ -14,6 +14,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import type { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js';
+import { secureStorage, storeCredentials } from './security';
 
 // ============================================
 // Types
@@ -345,8 +346,10 @@ function syncLegacyStorage(user: AuthUser): void {
     if (typeof window === 'undefined') return;
 
     try {
-        localStorage.setItem('warga_logged_in', 'true');
-        localStorage.setItem('warga_profile', JSON.stringify({
+        localStorage.setItem('warga_logged_in', 'true'); // Simple flag only (non-sensitive)
+
+        // SEC-FIX: Store profile in encrypted secureStorage instead of plaintext localStorage
+        const profileData = {
             id: user.id,
             nama: user.nama,
             email: user.email,
@@ -359,15 +362,16 @@ function syncLegacyStorage(user: AuthUser): void {
             role: user.role,
             permissions: user.permissions,
             tanggal_daftar: new Date().toISOString().split('T')[0],
-        }));
+        };
+        secureStorage.set('warga_profile', profileData, { encrypt: true, expiry: 24 * 60 * 60 * 1000 });
 
-        // Store credentials for auth viewmodel compatibility
-        localStorage.setItem('prisma_credentials', JSON.stringify({
+        // SEC-FIX: Store credentials using encrypted storeCredentials()
+        storeCredentials({
             userId: user.id,
-            role: user.role,
+            role: user.role === 'admin' ? 'admin' : (user.role === 'pengurus' ? 'staff' : 'warga'),
             sessionToken: crypto.randomUUID?.() ?? `session-${Date.now()}`,
             expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        }));
+        });
     } catch {
         // Storage quota exceeded or unavailable
     }
@@ -381,6 +385,10 @@ function clearLegacyStorage(): void {
         localStorage.removeItem('warga_profile');
         localStorage.removeItem('warga_photo');
         localStorage.removeItem('prisma_credentials');
+        // SEC-FIX: Also clear encrypted secure storage
+        secureStorage.remove('warga_profile');
+        secureStorage.remove('warga_photo');
+        secureStorage.clear();
     } catch {
         // Ignore
     }
@@ -391,18 +399,24 @@ function getLegacyUser(): AuthUser | null {
 
     try {
         const loggedIn = localStorage.getItem('warga_logged_in');
-        const profileStr = localStorage.getItem('warga_profile');
+        if (loggedIn !== 'true') return null;
 
-        if (loggedIn !== 'true' || !profileStr) return null;
+        // SEC-FIX: Try secureStorage first, then fallback to plaintext localStorage
+        const secureProfile = secureStorage.get<Record<string, unknown>>('warga_profile');
+        const profile = secureProfile || (() => {
+            const raw = localStorage.getItem('warga_profile');
+            return raw ? JSON.parse(raw) : null;
+        })();
 
-        const profile = JSON.parse(profileStr);
+        if (!profile) return null;
+
         return {
             id: String(profile.id || ''),
-            email: profile.email || '',
-            nama: profile.nama || '',
-            role: profile.role || 'warga',
-            permissions: profile.permissions || ROLE_PERMISSIONS.warga,
-            metadata: profile,
+            email: (profile.email as string) || '',
+            nama: (profile.nama as string) || '',
+            role: (profile.role as AuthUser['role']) || 'warga',
+            permissions: (profile.permissions as string[]) || ROLE_PERMISSIONS.warga,
+            metadata: profile as Record<string, unknown>,
         };
     } catch {
         return null;

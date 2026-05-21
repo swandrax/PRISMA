@@ -164,6 +164,10 @@ function _getLegacyKey(): string {
 }
 
 function _encryptDataSync(data: string): string {
+    // SEC-FIX CRYPTO-2: Legacy XOR — deprecated, migrate to encryptDataAsync()
+    if (process.env.NODE_ENV !== 'production') {
+        console.warn('[Security] DEPRECATED: _encryptDataSync uses weak XOR. Use encryptDataAsync() instead.');
+    }
     const uint8Array = new TextEncoder().encode(data);
     let result = '';
     const key = _getLegacyKey();
@@ -702,12 +706,24 @@ export function isSSRFSafe(urlStr: string): boolean {
 
         const hostname = url.hostname.toLowerCase();
 
-        // Block localhost and loopback
+        // Block localhost and loopback (IPv4)
         if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '0.0.0.0') {
             return false;
         }
 
-        // Block link-local addresses
+        // SEC-FIX SSRF-1: Block IPv6 loopback and private ranges
+        if (
+            hostname === '[::1]' || hostname === '::1' ||
+            hostname.startsWith('[::ffff:127.') ||
+            hostname.startsWith('::ffff:127.') ||
+            hostname.startsWith('[fc') || hostname.startsWith('[fd') || // ULA fc00::/7
+            hostname.startsWith('fc') || hostname.startsWith('fd') ||
+            hostname.startsWith('[fe80') || hostname.startsWith('fe80') // Link-local fe80::/10
+        ) {
+            return false;
+        }
+
+        // Block link-local addresses (IPv4)
         if (hostname === '169.254.169.254') {
             return false;
         }

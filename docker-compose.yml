@@ -36,11 +36,15 @@ services:
     build:
       context: ./services/warga-service
       dockerfile: Dockerfile
-    ports:
-      - "4001:4001"
+    # SEC-FIX DOCKER-1: Internal service — no host port exposure, accessible only via gateway
+    expose:
+      - "4001"
     environment:
       - NODE_ENV=production
       - PORT=4001
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     volumes:
       - warga-data:/app/data
     healthcheck:
@@ -55,11 +59,15 @@ services:
     build:
       context: ./services/keuangan-service
       dockerfile: Dockerfile
-    ports:
-      - "4002:4002"
+    # SEC-FIX DOCKER-1: Internal service — no host port exposure
+    expose:
+      - "4002"
     environment:
       - NODE_ENV=production
       - PORT=4002
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     volumes:
       - keuangan-data:/app/data
     healthcheck:
@@ -74,11 +82,15 @@ services:
     build:
       context: ./services/keamanan-service
       dockerfile: Dockerfile
-    ports:
-      - "4003:4003"
+    # SEC-FIX DOCKER-1: Internal service — no host port exposure
+    expose:
+      - "4003"
     environment:
       - NODE_ENV=production
       - PORT=4003
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     volumes:
       - keamanan-data:/app/data
     healthcheck:
@@ -93,11 +105,15 @@ services:
     build:
       context: ./services/surat-service
       dockerfile: Dockerfile
-    ports:
-      - "4004:4004"
+    # SEC-FIX DOCKER-1: Internal service — no host port exposure
+    expose:
+      - "4004"
     environment:
       - NODE_ENV=production
       - PORT=4004
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     volumes:
       - surat-data:/app/data
     healthcheck:
@@ -112,13 +128,17 @@ services:
     build:
       context: ./services/ai-service
       dockerfile: Dockerfile
-    ports:
-      - "4005:4005"
+    # SEC-FIX DOCKER-1: Internal service — no host port exposure
+    expose:
+      - "4005"
     environment:
       - NODE_ENV=production
       - PORT=4005
       - OLLAMA_API_URL=http://host.docker.internal:11434/api/chat
       - OLLAMA_MODEL=llama3.2:1b
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4005/health"]
       interval: 30s

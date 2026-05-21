@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, ChangeEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { secureStorage, sanitizeInput } from "@/lib/security"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -70,17 +71,22 @@ export default function ProfilePage() {
             router.push('/auth/login');
         }
 
-        // Load saved profile from localStorage
-        const savedProfile = localStorage.getItem('warga_profile');
+        // Load saved profile from secureStorage (encrypted) with localStorage fallback
+        const secureProfile = secureStorage.get<UserProfile>('warga_profile');
+        const savedProfile = secureProfile || (() => {
+            const raw = localStorage.getItem('warga_profile');
+            return raw ? JSON.parse(raw) : null;
+        })();
         if (savedProfile) {
-            const parsed = JSON.parse(savedProfile);
             setTimeout(() => {
-                setProfile(parsed);
-                setEditedProfile(parsed);
+                setProfile(savedProfile);
+                setEditedProfile(savedProfile);
             }, 0);
         }
 
-        const savedPhoto = localStorage.getItem('warga_photo');
+        // SEC-FIX DB-3: Load photo from secureStorage first, then fallback
+        const securePhoto = secureStorage.get<string>('warga_photo');
+        const savedPhoto = securePhoto || localStorage.getItem('warga_photo');
         if (savedPhoto) {
             setTimeout(() => {
                 setPhotoPreview(savedPhoto);
@@ -109,7 +115,8 @@ export default function ProfilePage() {
             reader.onloadend = () => {
                 const base64 = reader.result as string;
                 setPhotoPreview(base64);
-                localStorage.setItem('warga_photo', base64);
+                // SEC-FIX DB-3: Store photo in encrypted secureStorage instead of plaintext localStorage
+                secureStorage.set('warga_photo', base64, { encrypt: true });
             };
             reader.readAsDataURL(file);
         }
@@ -121,8 +128,19 @@ export default function ProfilePage() {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        setProfile(editedProfile);
-        localStorage.setItem('warga_profile', JSON.stringify(editedProfile));
+        // SEC-FIX: Sanitize profile fields before saving to prevent stored XSS
+        const sanitizedProfile = {
+            ...editedProfile,
+            nama: sanitizeInput(editedProfile.nama),
+            email: sanitizeInput(editedProfile.email),
+            alamat: sanitizeInput(editedProfile.alamat),
+            blok: sanitizeInput(editedProfile.blok),
+            no_rumah: sanitizeInput(editedProfile.no_rumah),
+        };
+
+        setProfile(sanitizedProfile);
+        // SEC-FIX: Store in encrypted secureStorage
+        secureStorage.set('warga_profile', sanitizedProfile, { encrypt: true, expiry: 24 * 60 * 60 * 1000 });
 
         setIsSaving(false);
         setIsEditing(false);
@@ -137,6 +155,9 @@ export default function ProfilePage() {
         localStorage.removeItem('warga_logged_in');
         localStorage.removeItem('warga_profile');
         localStorage.removeItem('warga_photo');
+        // SEC-FIX: Also clear encrypted storage
+        secureStorage.remove('warga_profile');
+        secureStorage.remove('warga_photo');
         router.push('/auth/login');
     };
 

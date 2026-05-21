@@ -14,7 +14,8 @@ import {
     resetRateLimit,
     sanitizeInput,
     logSecurityEvent,
-    storeCredentials
+    storeCredentials,
+    secureStorage
 } from "@/lib/security"
 import { RateLimitWarning, SecurityBadge } from "@/components/ui/security"
 
@@ -80,13 +81,13 @@ export default function LoginPage() {
                 expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
             })
 
-            // Legacy storage for backward compatibility (will be deprecated)
-            localStorage.setItem('warga_logged_in', 'true')
-            localStorage.setItem('warga_profile', JSON.stringify({
+            // SEC-FIX: Use encrypted secureStorage instead of plaintext localStorage
+            localStorage.setItem('warga_logged_in', 'true') // Simple flag only (non-sensitive)
+            secureStorage.set('warga_profile', {
                 id: user.id,
                 nama: user.nama,
                 email: user.email,
-                telepon: user.metadata.no_telepon || '', // Normalized key
+                telepon: user.metadata.no_telepon || '',
                 no_telepon: user.metadata.no_telepon || '',
                 tanggal_lahir: user.metadata.tanggal_lahir || '',
                 alamat: user.metadata.alamat || '',
@@ -97,7 +98,7 @@ export default function LoginPage() {
                 role: user.role,
                 permissions: user.permissions,
                 tanggal_daftar: new Date().toISOString().split('T')[0],
-            }))
+            }, { encrypt: true, expiry: 24 * 60 * 60 * 1000 })
 
             // SECURITY: Reset rate limit on successful login
             resetRateLimit('login')

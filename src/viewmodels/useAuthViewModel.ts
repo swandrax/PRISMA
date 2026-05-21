@@ -13,6 +13,11 @@ import {
   isSessionExpired,
   hasPermission,
 } from '@/models/entities/User';
+import {
+  storeCredentials as storeSecureCredentials,
+  getCredentials as getSecureCredentials,
+  clearCredentials as clearSecureCredentials,
+} from '@/lib/security';
 
 export interface AuthViewState {
   isAuthenticated: boolean;
@@ -46,8 +51,10 @@ export function useAuthViewModel() {
       }
 
       const stored = localStorage.getItem('prisma_credentials');
-      if (stored) {
-        const creds: SecureCredentials = JSON.parse(stored);
+      // SEC-FIX AUTH-3: Also check encrypted secure storage
+      const secureCreds = getSecureCredentials();
+      const creds: SecureCredentials | null = secureCreds || (stored ? JSON.parse(stored) : null);
+      if (creds) {
         if (!isSessionExpired(creds)) {
           setState(prev => ({
             ...prev,
@@ -104,6 +111,9 @@ export function useAuthViewModel() {
           expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
         };
 
+        // SEC-FIX AUTH-3: Store credentials in encrypted secureStorage instead of plaintext localStorage
+        storeSecureCredentials(credentials);
+        // Legacy fallback — will be removed in future
         localStorage.setItem('prisma_credentials', JSON.stringify(credentials));
         setState(prev => ({
           ...prev,
@@ -144,6 +154,7 @@ export function useAuthViewModel() {
   const handleLogout = useCallback(() => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('prisma_credentials');
+      clearSecureCredentials(); // SEC-FIX: Also clear encrypted storage
     }
     setState(prev => ({
       ...prev,
