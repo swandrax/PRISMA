@@ -20,9 +20,9 @@ const SEED_WARGA: WargaData[] = [
 ];
 
 const SEED_PENGURUS: PengurusData[] = [
-    { id: 1, nama: "Bapak R Erry Adu Sundaru", jabatan: "Ketua RT", periode: "2024-2027" },
-    { id: 2, nama: "Bu Sekretaris", jabatan: "Sekretaris", periode: "2024-2027" },
-    { id: 3, nama: "Pak Bendahara", jabatan: "Bendahara", periode: "2024-2027" }
+    { id: 1, nama: "Bapak R Erry Adu Sundaru", jabatan: "Ketua RT", periode: "2024-2029" },
+    { id: 2, nama: "Bu Sekretaris", jabatan: "Sekretaris", periode: "2024-2029" },
+    { id: 3, nama: "Pak Bendahara", jabatan: "Bendahara", periode: "2024-2029" }
 ];
 
 const SEED_LETTERS: LetterTemplate[] = [
@@ -89,7 +89,23 @@ const getStorage = <T>(key: string, seed: T): T => {
     if (!isBrowser) return seed;
     try {
         const item = localStorage.getItem(key);
-        if (item) return JSON.parse(item);
+        if (item) {
+            const parsed = JSON.parse(item);
+            // Quick migration for RT Chairman tenure period fix: if any item has 2024-2027, update to 2024-2029
+            let hasUpdate = false;
+            if (key === STORAGE_KEYS.PENGURUS && Array.isArray(parsed)) {
+                parsed.forEach((p: any) => {
+                    if (p.periode === '2024-2027') {
+                        p.periode = '2024-2029';
+                        hasUpdate = true;
+                    }
+                });
+            }
+            if (hasUpdate) {
+                localStorage.setItem(key, JSON.stringify(parsed));
+            }
+            return parsed as T;
+        }
         // Initialize with seed if empty
         localStorage.setItem(key, JSON.stringify(seed));
         return seed;

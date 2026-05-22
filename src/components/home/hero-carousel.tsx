@@ -24,18 +24,36 @@ const items = [
         heading: "Guyub Rukun Warga RT 04 Kemayoran",
         text: "Membangun sinergi dan kebersamaan melalui gotong royong digital dan fisik.",
         bgClass: "bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900",
+        badgeText: "Portal Warga RT 04",
+        badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/20",
+        primaryBtnClass: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-950/40 border border-indigo-500/30",
+        secondaryBtnClass: "border-2 border-indigo-400/50 bg-indigo-950/40 hover:bg-indigo-950/60 text-indigo-200 hover:text-white",
+        tertiaryBtnClass: "border-2 border-purple-400/50 bg-purple-950/40 hover:bg-purple-950/60 text-purple-200 hover:text-white",
+        dotColorClass: "bg-blue-400"
     },
     {
         id: 2,
         heading: "Transparansi dalam Genggaman",
         text: "Pantau arus kas dan ajukan surat pengantar kapan saja, di mana saja.",
         bgClass: "bg-gradient-to-br from-teal-900 via-emerald-950 to-green-950",
+        badgeText: "Transparansi RT 04",
+        badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/20",
+        primaryBtnClass: "bg-teal-600 hover:bg-teal-700 text-white shadow-teal-950/40 border border-teal-500/30",
+        secondaryBtnClass: "border-2 border-teal-400/50 bg-teal-950/40 hover:bg-teal-950/60 text-teal-200 hover:text-white",
+        tertiaryBtnClass: "border-2 border-emerald-400/50 bg-emerald-950/40 hover:bg-emerald-950/60 text-emerald-200 hover:text-white",
+        dotColorClass: "bg-teal-400"
     },
     {
         id: 3,
         heading: "Lingkungan Aman & Terpantau",
         text: "Integrasi sistem keamanan dan respon darurat 24 jam untuk ketenangan warga.",
         bgClass: "bg-gradient-to-br from-orange-950 via-red-950 to-rose-950",
+        badgeText: "Keamanan RT 04",
+        badgeClass: "text-rose-300 bg-rose-500/10 border-rose-500/20",
+        primaryBtnClass: "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-950/40 border border-rose-500/30",
+        secondaryBtnClass: "border-2 border-rose-400/50 bg-rose-950/40 hover:bg-rose-950/60 text-rose-200 hover:text-white",
+        tertiaryBtnClass: "border-2 border-orange-400/50 bg-orange-950/40 hover:bg-orange-950/60 text-orange-200 hover:text-white",
+        dotColorClass: "bg-rose-400"
     },
 ]
 
@@ -275,7 +293,7 @@ export function HeroCarousel() {
     }
 
     return (
-        <div className="relative min-h-[820px] md:h-[620px] w-full overflow-hidden bg-slate-950 select-none flex items-center py-12 md:py-0">
+        <div className="relative min-h-[660px] sm:min-h-[720px] md:h-[620px] w-full overflow-hidden bg-slate-950 select-none flex items-center py-12 md:py-0">
             {/* Background Slides */}
             <AnimatePresence mode="wait">
                 <motion.div
@@ -299,8 +317,8 @@ export function HeroCarousel() {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.1, duration: 0.5 }}
                                 >
-                                    <span className="inline-block bg-white/10 px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-blue-300 border border-white/10 mb-4 backdrop-blur-sm">
-                                        Portal Warga RT 04
+                                    <span className={`inline-block px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider border mb-4 backdrop-blur-sm ${items[currentIndex].badgeClass}`}>
+                                        {items[currentIndex].badgeText}
                                     </span>
                                 </motion.div>
                                 
@@ -332,23 +350,23 @@ export function HeroCarousel() {
                                     <Button 
                                         asChild 
                                         size="lg" 
-                                        className="bg-white hover:bg-slate-5 text-slate-900 font-bold shadow-lg hover:shadow-xl transition-all hover:translate-y-[-2px] active:scale-95 rounded-full px-7"
+                                        variant="custom"
+                                        className={`font-bold shadow-lg hover:shadow-xl transition-all hover:translate-y-[-2px] active:scale-95 rounded-full px-7 ${items[currentIndex].primaryBtnClass}`}
                                     >
                                         <Link href="/keuangan/laporan">
-                                            <BarChart3 className="h-4.5 w-4.5 mr-2 text-slate-800" />
+                                            <BarChart3 className="h-4.5 w-4.5 mr-2" />
                                             Laporan Keuangan
                                         </Link>
                                     </Button>
                                     
-                                    {/* Using custom className without variant='outline' to prevent white-background light-theme conflict */}
                                     <Button 
                                         asChild 
                                         size="lg" 
-                                        variant="ghost" 
-                                        className="border-2 border-white/70 bg-white/10 hover:bg-white/20 text-white hover:text-white font-semibold rounded-full px-7 transition-all hover:translate-y-[-2px] active:scale-95 backdrop-blur-sm"
+                                        variant="custom" 
+                                        className={`font-semibold rounded-full px-7 transition-all hover:translate-y-[-2px] active:scale-95 backdrop-blur-sm ${items[currentIndex].secondaryBtnClass}`}
                                     >
                                         <Link href="/#jadwal">
-                                            <Calendar className="h-4.5 w-4.5 mr-2 text-white" />
+                                            <Calendar className="h-4.5 w-4.5 mr-2" />
                                             Jadwal Kegiatan
                                         </Link>
                                     </Button>
@@ -356,11 +374,11 @@ export function HeroCarousel() {
                                     <Button 
                                         asChild 
                                         size="lg" 
-                                        variant="ghost"
-                                        className="border-2 border-white/70 bg-white/10 hover:bg-white/20 text-white hover:text-white font-semibold rounded-full px-7 transition-all hover:translate-y-[-2px] active:scale-95 backdrop-blur-sm"
+                                        variant="custom"
+                                        className={`font-semibold rounded-full px-7 transition-all hover:translate-y-[-2px] active:scale-95 backdrop-blur-sm ${items[currentIndex].tertiaryBtnClass}`}
                                     >
                                         <Link href="/#contact">
-                                            <Phone className="h-4.5 w-4.5 mr-2 text-white" />
+                                            <Phone className="h-4.5 w-4.5 mr-2" />
                                             Hubungi RT
                                         </Link>
                                     </Button>
@@ -368,7 +386,7 @@ export function HeroCarousel() {
                             </div>
 
                             {/* Right column: Animated Visual Themed Card Graphics */}
-                            <div className="col-span-1 md:col-span-5 flex justify-center items-center mt-8 md:mt-0 scale-90 sm:scale-95 md:scale-100">
+                            <div className="col-span-1 md:col-span-5 flex justify-center items-center mt-8 md:mt-0 scale-[0.8] sm:scale-90 md:scale-100 origin-center">
                                 {renderVisualGraphic(currentIndex)}
                             </div>
 
@@ -385,7 +403,7 @@ export function HeroCarousel() {
                         onClick={() => setCurrentIndex(index)}
                         className={`h-2 rounded-full transition-all duration-300 ${
                             index === currentIndex 
-                                ? "w-8 bg-blue-400" 
+                                ? `w-8 ${items[currentIndex].dotColorClass}` 
                                 : "w-2 bg-white/40 hover:bg-white/70"
                         }`}
                         aria-label={`Go to slide ${index + 1}`}

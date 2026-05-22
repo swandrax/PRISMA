@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "gradient"
+    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | "gradient" | "custom"
     size?: "default" | "sm" | "lg" | "icon"
     asChild?: boolean
 }
@@ -44,6 +44,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
                         // Gradient - For use on colored backgrounds (white button with dark text)
                         "bg-white text-slate-800 hover:bg-gray-50 shadow-md hover:shadow-lg border-0 active:scale-[0.98]": variant === "gradient",
+
+                        // Custom - No default background/color styling
+                        "": variant === "custom",
 
                         // Sizes
                         "h-10 px-5 py-2": size === "default",

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Menu, X, Bell, User, ChevronDown, FileText, BarChart3, ShieldAlert, ShieldCheck, LogOut, Settings } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { secureStorage } from "@/lib/security"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,20 +25,24 @@ export function Navbar() {
     // Check login status on mount
     React.useEffect(() => {
         const checkLogin = () => {
-            const loggedIn = localStorage.getItem('warga_logged_in')
-            const profile = localStorage.getItem('warga_profile')
-            const photo = localStorage.getItem('warga_photo')
+            const loggedIn = localStorage.getItem('warga_logged_in') === 'true'
+            
+            // Safe decryption of profile using secureStorage helper
+            const profile = secureStorage.get<any>('warga_profile')
+            const photo = secureStorage.get<string>('warga_photo') || localStorage.getItem('warga_photo')
 
             if (loggedIn && profile) {
                 setIsLoggedIn(true)
-                const parsed = JSON.parse(profile)
-                setUserName(parsed.nama || 'Warga')
+                setUserName(profile.nama || 'Warga')
             } else {
                 setIsLoggedIn(false)
+                setUserName("")
             }
 
             if (photo) {
                 setUserPhoto(photo)
+            } else {
+                setUserPhoto(null)
             }
         }
 
@@ -51,6 +56,8 @@ export function Navbar() {
         localStorage.removeItem('warga_logged_in')
         localStorage.removeItem('warga_profile')
         localStorage.removeItem('warga_photo')
+        secureStorage.remove('warga_profile')
+        secureStorage.remove('warga_photo')
         setIsLoggedIn(false)
         setUserName("")
         setUserPhoto(null)

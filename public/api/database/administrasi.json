@@ -50,25 +50,25 @@
                 "id": 1,
                 "nama": "Bpk. Ahmad Suryadi",
                 "jabatan": "Ketua RT",
-                "periode": "2024-2027"
+                "periode": "2024-2029"
             },
             {
                 "id": 2,
                 "nama": "Bpk. Dedi Kurniawan",
                 "jabatan": "Sekretaris",
-                "periode": "2024-2027"
+                "periode": "2024-2029"
             },
             {
                 "id": 3,
                 "nama": "Ibu Sri Wahyuni",
                 "jabatan": "Bendahara",
-                "periode": "2024-2027"
+                "periode": "2024-2029"
             },
             {
                 "id": 4,
                 "nama": "Bpk. Joko Santoso",
                 "jabatan": "Keamanan",
-                "periode": "2024-2027"
+                "periode": "2024-2029"
             }
         ],
         "statistik": {

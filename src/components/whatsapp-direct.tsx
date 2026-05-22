@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { MessageCircle, Phone, Send, X } from 'lucide-react'
 import { useClickOutside } from '@/hooks/use-click-outside'
+import { secureStorage } from '@/lib/security'
 
 const RT_PHONE_NUMBER = '6287872004448'
 
@@ -21,15 +22,11 @@ export function WhatsAppDirect() {
     useEffect(() => {
         const checkLogin = () => {
             const loggedIn = localStorage.getItem('warga_logged_in')
-            const profile = localStorage.getItem('warga_profile')
+            const profile = secureStorage.get<WargaProfile>('warga_profile')
 
             if (loggedIn && profile) {
                 setIsLoggedIn(true)
-                try {
-                    setWargaProfile(JSON.parse(profile))
-                } catch {
-                    setWargaProfile(null)
-                }
+                setWargaProfile(profile)
             } else {
                 setIsLoggedIn(false)
                 setWargaProfile(null)
