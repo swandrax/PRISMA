@@ -133,6 +133,16 @@ export default function RegisterPage() {
                                     </div>
                                 )}
 
+                                <div className="p-3 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 text-xs text-blue-700 dark:text-blue-300">
+                                    <div className="flex items-start gap-2">
+                                        <Shield className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+                                        <div>
+                                            <span className="font-semibold block mb-0.5">Dukungan Email Pribadi & Keamanan Data</span>
+                                            Warga RT 04 dapat mendaftar menggunakan email pribadi seperti <strong className="font-medium text-blue-800 dark:text-blue-200">@gmail.com</strong>. Seluruh data Anda dienkripsi penuh di browser (AES-256-GCM) sebelum dikirimkan ke server.
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Nama Lengkap (sesuai KTP)</Label>
                                     <div className="relative">
@@ -145,8 +155,12 @@ export default function RegisterPage() {
                                     <Label htmlFor="email">Email</Label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                        <Input id="email" name="email" type="email" placeholder="nama@contoh.com" className="pl-10" required />
+                                        <Input id="email" name="email" type="email" placeholder="warga.rt04@gmail.com" className="pl-10" required />
                                     </div>
+                                    <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 px-1">
+                                        <Shield className="h-3 w-3 text-green-500 flex-shrink-0" />
+                                        Email pribadi (@gmail.com dll.) didukung penuh & dilindungi enkripsi AES-256.
+                                    </p>
                                 </div>
 
                                 <div className="grid gap-2">

@@ -207,7 +207,7 @@ export default function LoginPage() {
                                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="email"
-                                            placeholder="email@contoh.com"
+                                            placeholder="warga.rt04@gmail.com"
                                             type="email"
                                             className="pl-10"
                                             required
