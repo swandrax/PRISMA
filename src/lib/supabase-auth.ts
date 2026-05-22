@@ -130,6 +130,11 @@ export async function signUp(
         });
 
         if (error) {
+            // Handle 403 specifically - likely invalid API key or RLS policy
+            if (error.status === 403 || error.message?.includes('403') || error.message?.includes('Forbidden')) {
+                console.error('Supabase 403 Error: Kemungkinan API key salah atau RLS policy belum dikonfigurasi.', error);
+                return { success: false, error: 'Registrasi gagal (403). Hubungi admin - konfigurasi server perlu diperbaiki.' };
+            }
             return { success: false, error: mapAuthError(error) };
         }
 
@@ -332,7 +337,15 @@ function mapAuthError(error: AuthError): string {
         'Password should be at least 6 characters': 'Password minimal 6 karakter.',
         'User not found': 'Akun tidak ditemukan.',
         'Email rate limit exceeded': 'Terlalu banyak permintaan. Coba lagi nanti.',
+        'Signups not allowed for this instance': 'Pendaftaran tidak diizinkan. Hubungi admin.',
+        'Database error saving new user': 'Gagal menyimpan data. Coba lagi nanti.',
+        'Invalid API key': 'Konfigurasi server salah. Hubungi admin.',
     };
+
+    // Check for partial matches (some errors have dynamic messages)
+    for (const [key, value] of Object.entries(errorMap)) {
+        if (error.message?.includes(key)) return value;
+    }
 
     return errorMap[error.message] || `Error: ${error.message}`;
 }

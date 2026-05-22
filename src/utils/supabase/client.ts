@@ -1,7 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+// Use standard ANON_KEY with fallback to legacy PUBLISHABLE_KEY for backward compatibility
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null;
 
