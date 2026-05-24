@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { WhatsAppDirect } from "@/components/whatsapp-direct";
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -124,6 +125,7 @@ export default function RootLayout({
             <Footer />
           </AuthProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
