@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, Loader2, CheckCircle, AlertCircle, Shield } from "lucide-react"
-import { signIn } from "@/lib/supabase-auth"
+import { signInAdmin, signInPengurus, signInWarga } from "@/lib/supabase-auth"
 import {
     checkRateLimit,
     resetRateLimit,
@@ -20,10 +20,12 @@ import {
 } from "@/lib/security"
 import { RateLimitWarning, SecurityBadge } from "@/components/ui/security"
 
+type Role = 'warga' | 'pengurus' | 'admin'
 
 export default function LoginPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
+    const [selectedRole, setSelectedRole] = React.useState<Role>('warga')
 
     const [loginError, setLoginError] = React.useState<string | null>(null)
     const [loginSuccess, setLoginSuccess] = React.useState(false)
@@ -49,12 +51,9 @@ export default function LoginPage() {
         setIsLoading(true)
 
         const form = event.target as HTMLFormElement
-        // SECURITY: Sanitize email but NOT password (sanitizing password strips special chars needed for strong passwords)
-        // PortSwigger: Input validation should be context-appropriate
         const email = sanitizeInput((form.elements.namedItem('email') as HTMLInputElement).value)
-        const password = (form.elements.namedItem('password') as HTMLInputElement).value // Raw password for comparison
+        const password = (form.elements.namedItem('password') as HTMLInputElement).value
 
-        // Validate email format before processing (PortSwigger: Server-side validation)
         if (!validateEmailFormat(email)) {
             setLoginError("Format email tidak valid atau domain diblokir.")
             setIsLoading(false)
@@ -62,27 +61,31 @@ export default function LoginPage() {
         }
 
         // Authenticate via Supabase Auth (with automatic demo fallback)
-        const result = await signIn(email, password)
+        let result;
+        if (selectedRole === 'admin') {
+            result = await signInAdmin(email, password)
+        } else if (selectedRole === 'pengurus') {
+            result = await signInPengurus(email, password)
+        } else {
+            result = await signInWarga(email, password)
+        }
 
         if (result.success && result.user) {
             const user = result.user
             setLoginSuccess(true)
 
-            // SEC-007 FIX: Use CSPRNG for session token instead of Math.random()
             const tokenBytes = new Uint8Array(32);
             crypto.getRandomValues(tokenBytes);
             const sessionToken = Array.from(tokenBytes, b => b.toString(16).padStart(2, '0')).join('');
 
-            // SECURITY: Store credentials securely (encrypted)
             storeCredentials({
                 userId: String(user.id),
                 role: user.role === 'admin' ? 'admin' : (user.role === 'pengurus' ? 'staff' : 'warga'),
                 sessionToken,
-                expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+                expiresAt: Date.now() + (24 * 60 * 60 * 1000)
             })
 
-            // SEC-FIX: Use encrypted secureStorage instead of plaintext localStorage
-            localStorage.setItem('warga_logged_in', 'true') // Simple flag only (non-sensitive)
+            localStorage.setItem('warga_logged_in', 'true')
             secureStorage.set('warga_profile', {
                 id: user.id,
                 nama: user.nama,
@@ -100,20 +103,24 @@ export default function LoginPage() {
                 tanggal_daftar: new Date().toISOString().split('T')[0],
             }, { encrypt: true, expiry: 24 * 60 * 60 * 1000 })
 
-            // SECURITY: Reset rate limit on successful login
+            document.cookie = "warga_session=true; path=/; max-age=86400; SameSite=Lax; secure";
+
             resetRateLimit('login')
             logSecurityEvent('login_success', true, `User: ${user.email}, Role: ${user.role}`)
 
             await new Promise(resolve => setTimeout(resolve, 500))
 
-            // Redirect based on role
-            if (user.role === 'admin') {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+
+            if (redirectUrl) {
+                router.push(redirectUrl)
+            } else if (user.role === 'admin') {
                 router.push("/admin")
             } else {
-                router.push("/profile")
+                router.push("/")
             }
         } else {
-            // SECURITY: Log failed attempt
             logSecurityEvent('login_failed', false, `Email: ${email}`)
             setLoginError(result.error || "Email atau password tidak ditemukan.")
             setIsLoading(false)
@@ -202,6 +209,36 @@ export default function LoginPage() {
                                 )}
 
                                 <div className="grid gap-2">
+                                    <Label>Login Sebagai</Label>
+                                    <div className="flex gap-2">
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'warga' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('warga')}
+                                            className="flex-1"
+                                        >
+                                            Warga
+                                        </Button>
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'pengurus' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('pengurus')}
+                                            className="flex-1"
+                                        >
+                                            Pengurus
+                                        </Button>
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'admin' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('admin')}
+                                            className="flex-1"
+                                        >
+                                            Admin
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-2">
                                     <Label htmlFor="email">Email</Label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -257,7 +294,7 @@ export default function LoginPage() {
                     <div className="flex flex-col items-center pt-4 border-t border-dashed">
                         <p className="text-xs text-muted-foreground mb-3">Butuh bantuan akses?</p>
                         <Link
-                            href="https://wa.me/6281234567890?text=Halo%20Admin%20PRISMA,%20saya%20butuh%20bantuan%20login%20ke%20portal%20RT%2004."
+                            href="https://wa.me/6287872004448?text=Halo%20Admin%20PRISMA,%20saya%20butuh%20bantuan%20login%20ke%20portal%20RT%2004."
                             target="_blank"
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-medium transition-all hover:scale-105 shadow-md"
                         >

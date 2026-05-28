@@ -18,6 +18,7 @@ import {
     Lock
 } from "lucide-react"
 import { useKeuanganViewModel } from "@/viewmodels/useKeuanganViewModel"
+import { useAuth } from "@/hooks/useAuth"
 
 function formatCurrency(amount: number): string {
     return new Intl.NumberFormat('id-ID', {
@@ -30,6 +31,7 @@ function formatCurrency(amount: number): string {
 export function AdministrationHub() {
     // ViewModel — single source of truth for keuangan data
     const { expenseSummary, isLoading: loading } = useKeuanganViewModel();
+    const { isAuthenticated } = useAuth();
 
     const expenseCategories = expenseSummary.categories;
     const avgExpense = expenseSummary.avgMonthlyExpense;
@@ -116,76 +118,105 @@ export function AdministrationHub() {
                             <div className="absolute top-0 right-0 p-8 opacity-5">
                                 <span className="text-9xl font-bold tracking-tighter">Rp</span>
                             </div>
-                            <CardHeader>
-                                <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wider">Saldo Bulan Ini</CardTitle>
-                                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mt-2">Rp 2.500.000</div>
-                            </CardHeader>
-                            <CardContent className="grid gap-4">
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-green-500 rounded-full text-white">
-                                            <TrendingUp className="h-4 w-4" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Pemasukan</p>
-                                            <p className="text-xs text-muted-foreground">Iuran & Donasi</p>
-                                        </div>
-                                    </div>
-                                    <span className="font-bold text-green-600 dark:text-green-400">+ Rp 700.000</span>
-                                </div>
-
-                                <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-red-500 rounded-full text-white">
-                                            <TrendingDown className="h-4 w-4" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium">Pengeluaran</p>
-                                            <p className="text-xs text-muted-foreground">Kebersihan & Dana Operasional</p>
-                                        </div>
-                                    </div>
-                                    <span className="font-bold text-red-600 dark:text-red-400">- Rp 800.000</span>
-                                </div>
-
-                                {/* Expense Summary Preview */}
-                                <div className="mt-2 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <div className="flex items-center gap-2">
-                                            <BarChart3 className="h-4 w-4 text-amber-600" />
-                                            <span className="text-sm font-medium">Rata-rata Pengeluaran Bulanan</span>
-                                        </div>
-                                        <span className="font-bold text-amber-600">{formatCurrency(avgExpense)}</span>
-                                    </div>
-                                    {!loading && expenseCategories.slice(0, 3).map((cat, idx) => (
-                                        <div key={idx} className="mb-2">
-                                            <div className="flex justify-between text-xs mb-1">
-                                                <span className="text-muted-foreground">{cat.kategori}</span>
-                                                <span className="text-amber-600">{cat.persentase}%</span>
+                            {isAuthenticated ? (
+                                <>
+                                    <CardHeader>
+                                        <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wider">Saldo Bulan Ini</CardTitle>
+                                        <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mt-2">Rp 2.500.000</div>
+                                    </CardHeader>
+                                    <CardContent className="grid gap-4">
+                                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-2 bg-green-500 rounded-full text-white">
+                                                    <TrendingUp className="h-4 w-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium">Pemasukan</p>
+                                                    <p className="text-xs text-muted-foreground">Iuran & Donasi</p>
+                                                </div>
                                             </div>
-                                            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
-                                                    style={{ width: `${cat.persentase}%` }}
-                                                ></div>
-                                            </div>
+                                            <span className="font-bold text-green-600 dark:text-green-400">+ Rp 700.000</span>
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                            <CardFooter className="flex gap-2">
-                                <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700">
-                                    <Link href="/keuangan/laporan">
-                                        <Calendar className="mr-2 h-4 w-4" />
-                                        Laporan Bulanan
-                                    </Link>
-                                </Button>
-                                <Button asChild variant="outline" className="flex-1">
-                                    <Link href="/keuangan/laporan">
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Download PDF
-                                    </Link>
-                                </Button>
-                            </CardFooter>
+
+                                        <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-2 bg-red-500 rounded-full text-white">
+                                                    <TrendingDown className="h-4 w-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium">Pengeluaran</p>
+                                                    <p className="text-xs text-muted-foreground">Kebersihan & Dana Operasional</p>
+                                                </div>
+                                            </div>
+                                            <span className="font-bold text-red-600 dark:text-red-400">- Rp 800.000</span>
+                                        </div>
+
+                                        {/* Expense Summary Preview */}
+                                        <div className="mt-2 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <BarChart3 className="h-4 w-4 text-amber-600" />
+                                                    <span className="text-sm font-medium">Rata-rata Pengeluaran Bulanan</span>
+                                                </div>
+                                                <span className="font-bold text-amber-600">{formatCurrency(avgExpense)}</span>
+                                            </div>
+                                            {!loading && expenseCategories.slice(0, 3).map((cat, idx) => (
+                                                <div key={idx} className="mb-2">
+                                                    <div className="flex justify-between text-xs mb-1">
+                                                        <span className="text-muted-foreground">{cat.kategori}</span>
+                                                        <span className="text-amber-600">{cat.persentase}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+                                                            style={{ width: `${cat.persentase}%` }}
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="flex gap-2">
+                                        <Button asChild className="flex-1 bg-blue-600 hover:bg-blue-700">
+                                            <Link href="/keuangan/laporan">
+                                                <Calendar className="mr-2 h-4 w-4" />
+                                                Laporan Bulanan
+                                            </Link>
+                                        </Button>
+                                        <Button asChild variant="outline" className="flex-1">
+                                            <Link href="/keuangan/laporan">
+                                                <Download className="mr-2 h-4 w-4" />
+                                                Download PDF
+                                            </Link>
+                                        </Button>
+                                    </CardFooter>
+                                </>
+                            ) : (
+                                <>
+                                    <CardHeader>
+                                        <CardTitle className="text-muted-foreground text-sm font-medium uppercase tracking-wider">Saldo Bulan Ini</CardTitle>
+                                        <div className="text-4xl font-bold text-slate-300 dark:text-slate-700 mt-2 select-none tracking-widest">Rp ••••••••</div>
+                                    </CardHeader>
+                                    <CardContent className="grid gap-4 py-6">
+                                        <div className="flex flex-col items-center justify-center text-center p-4 rounded-xl bg-slate-100/50 dark:bg-slate-900/50 border border-dashed border-slate-200 dark:border-slate-800">
+                                            <div className="h-12 w-12 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mb-3 text-blue-600 dark:text-blue-400">
+                                                <Lock className="h-6 w-6" />
+                                            </div>
+                                            <p className="text-sm font-semibold">Login untuk melihat data</p>
+                                            <p className="text-xs text-muted-foreground max-w-[280px] mt-1">
+                                                Rincian keuangan warga RT 04 disembunyikan demi keamanan dan privasi data lingkungan.
+                                            </p>
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 shadow-md">
+                                            <Link href="/auth/login?redirect=/">
+                                                Masuk ke Portal Warga
+                                            </Link>
+                                        </Button>
+                                    </CardFooter>
+                                </>
+                            )}
                         </Card>
                     </div>
 

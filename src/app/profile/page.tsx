@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, ChangeEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { secureStorage, sanitizeInput } from "@/lib/security"
+import { updateProfile } from "@/lib/supabase-auth"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,10 +16,8 @@ import {
     Camera,
     Settings,
     LogOut,
-    Edit,
     Save,
     X,
-    Check,
     ArrowLeft,
     Shield,
     FileText,
@@ -125,9 +124,6 @@ export default function ProfilePage() {
     const handleSaveProfile = async () => {
         setIsSaving(true);
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
         // SEC-FIX: Sanitize profile fields before saving to prevent stored XSS
         const sanitizedProfile = {
             ...editedProfile,
@@ -138,12 +134,33 @@ export default function ProfilePage() {
             no_rumah: sanitizeInput(editedProfile.no_rumah),
         };
 
-        setProfile(sanitizedProfile);
-        // SEC-FIX: Store in encrypted secureStorage
-        secureStorage.set('warga_profile', sanitizedProfile, { encrypt: true, expiry: 24 * 60 * 60 * 1000 });
+        try {
+            // Get photo base64 from secureStorage to pass to updateProfile
+            const securePhoto = secureStorage.get<string>('warga_photo');
+            const savedPhoto = securePhoto || localStorage.getItem('warga_photo') || undefined;
 
-        setIsSaving(false);
-        setIsEditing(false);
+            // Call the hardened, schema-free update function
+            const result = await updateProfile({
+                nama: sanitizedProfile.nama,
+                noTelepon: sanitizedProfile.no_telepon,
+                alamat: sanitizedProfile.alamat,
+                avatarUrl: '', // Textual metadata is updated. Photo is saved locally as base64.
+            }, savedPhoto);
+
+            if (result.success) {
+                setProfile(sanitizedProfile);
+                // Also update the editedProfile state to match
+                setEditedProfile(sanitizedProfile);
+                setIsEditing(false);
+            } else {
+                alert(result.error || 'Gagal memperbarui profil di server.');
+            }
+        } catch (err) {
+            console.error('Gagal memperbarui profil:', err);
+            alert('Terjadi kesalahan saat menyimpan profil. Silakan coba lagi.');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleCancelEdit = () => {
@@ -158,6 +175,7 @@ export default function ProfilePage() {
         // SEC-FIX: Also clear encrypted storage
         secureStorage.remove('warga_profile');
         secureStorage.remove('warga_photo');
+        document.cookie = "warga_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         router.push('/auth/login');
     };
 
@@ -214,11 +232,14 @@ export default function ProfilePage() {
                                 <div className="relative inline-block mb-4">
                                     <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 mx-auto flex items-center justify-center">
                                         {photoPreview ? (
-                                            <img
-                                                src={photoPreview}
-                                                alt="Profile"
-                                                className="w-full h-full object-cover"
-                                            />
+                                            <>
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img
+                                                    src={photoPreview}
+                                                    alt="Profile"
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </>
                                         ) : (
                                             <User className="h-16 w-16 text-white" />
                                         )}

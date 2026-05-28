@@ -31,7 +31,7 @@ export interface GalleryItem {
 export const galleryData: GalleryItem[] = [
     {
         id: "g1",
-        src: "/gallery/mendengarkan aspirasi warga berbeda RT .jpeg",
+        src: "/gallery/mendengarkan-aspirasi-warga-berbeda-rt.jpeg",
         title: "Mendengarkan Aspirasi Warga Berbeda RT",
         caption: "Pengurus RT menyerap langsung aspirasi dari warga lintas RT.",
         date: "2026-01-15",
@@ -40,7 +40,7 @@ export const galleryData: GalleryItem[] = [
     },
     {
         id: "g2",
-        src: "/gallery/musyawarah bersama ketua RW09 di balai warga.jpeg",
+        src: "/gallery/musyawarah-bersama-ketua-rw09.jpeg",
         title: "Musyawarah Bersama Ketua RW 09",
         caption: "Koordinasi pengurus RT dengan Ketua RW 09 di balai warga.",
         date: "2026-02-05",
@@ -50,7 +50,7 @@ export const galleryData: GalleryItem[] = [
     },
     {
         id: "g3",
-        src: "/gallery/pak erry memenangkan nominasi kebersihan tata letak lingkungan .jpeg",
+        src: "/gallery/pak-erry-nominasi-kebersihan.jpeg",
         title: "Nominasi Kebersihan Lingkungan",
         caption: "Pak Erry memenangkan nominasi kebersihan dan tata letak lingkungan.",
         date: "2026-01-28",
@@ -59,7 +59,7 @@ export const galleryData: GalleryItem[] = [
     },
     {
         id: "g4",
-        src: "/gallery/piket rutin selama bulan Ramadhan.jpeg",
+        src: "/gallery/piket-rutin-ramadhan.jpeg",
         title: "Piket Rutin Bulan Ramadhan",
         caption: "Warga menjalankan piket keamanan lingkungan selama Ramadhan.",
         date: "2026-03-01",
@@ -69,7 +69,7 @@ export const galleryData: GalleryItem[] = [
     },
     {
         id: "g5",
-        src: "/gallery/rapat antar ketua RT di wilayah rw 09.jpeg",
+        src: "/gallery/rapat-antar-ketua-rt-rw09.jpeg",
         title: "Rapat Antar Ketua RT RW 09",
         caption: "Forum koordinasi ketua RT se-wilayah RW 09.",
         date: "2026-02-10",

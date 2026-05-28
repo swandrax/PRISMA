@@ -20,6 +20,20 @@ import { secureStorage, storeCredentials } from './security';
 // Types
 // ============================================
 
+export interface DbUserProfile {
+    id?: string;
+    name?: string;
+    nama?: string;
+    email?: string;
+    role?: string;
+    phone?: string;
+    no_telepon?: string;
+    address?: string;
+    alamat?: string;
+    avatar_url?: string;
+    [key: string]: unknown;
+}
+
 export interface AuthUser {
     id: string;
     email: string;
@@ -69,47 +83,146 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 // ============================================
 
 /**
- * Sign in with email and password via Supabase Auth.
- * Falls back to demo credentials for development/offline mode.
+ * Base sign-in function that validates role.
  */
-export async function signIn(email: string, password: string): Promise<AuthResult> {
+async function _signInWithRole(email: string, password: string, expectedRole: string): Promise<AuthResult> {
     const supabase = createClient();
 
     try {
-        // Attempt Supabase Auth sign-in
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
         if (error) {
-            // Fallback to demo credentials for development
-            return await signInWithDemoFallback(email, password);
+            const isNetworkError = 
+                error.message?.includes('fetch') || 
+                error.message?.includes('NetworkError') || 
+                error.message?.includes('Failed to fetch') ||
+                error.status === 0;
+
+            if (isNetworkError) {
+                return { 
+                    success: false, 
+                    error: 'Koneksi internet terganggu. Silakan coba lagi.' 
+                };
+            }
+
+            // Check for unconfirmed email specifically
+            const isUnconfirmedEmail = 
+                error.message?.includes('Email not confirmed') || 
+                error.message?.includes('confirm') ||
+                (error.status === 400 && error.message?.includes('confirm'));
+
+            if (isUnconfirmedEmail) {
+                return { 
+                    success: false, 
+                    error: 'Alamat email Anda belum dikonfirmasi. Silakan periksa inbox email Anda untuk mengaktifkan akun.' 
+                };
+            }
+
+            // ONLY fall back to demo in development environment
+            if (process.env.NODE_ENV === 'development') {
+                console.warn(`Supabase sign-in failed: ${error.message}. Falling back to demo credentials in development mode.`);
+                return await signInWithDemoFallback(email, password, expectedRole);
+            }
+
+            return { success: false, error: mapAuthError(error) };
         }
 
         if (data.user) {
-            const authUser = mapSupabaseUser(data.user);
+            // Retrieve profile from public.users as the primary source of truth for role and details
+            let dbUser: DbUserProfile | null = null;
+            try {
+                const { data: profile, error: dbErr } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+                
+                if (!dbErr && profile) {
+                    dbUser = profile as DbUserProfile;
+                } else if (dbErr) {
+                    console.warn('Gagal membaca profil pengguna dari database:', dbErr.message);
+                }
+            } catch (dbCatch) {
+                console.warn('Kesalahan saat memuat profil dari database:', dbCatch);
+            }
 
-            // Sync to legacy localStorage for backward compatibility
+            const authUser = mapSupabaseUser(data.user, dbUser);
+            
+            // Verifikasi Role (Cegah Bentrok Data)
+            if (authUser.role !== expectedRole) {
+                await supabase.auth.signOut();
+                return { 
+                    success: false, 
+                    error: `Akses ditolak. Akun dengan email ini terdaftar dengan peran '${authUser.role}', bukan sebagai '${expectedRole}'.` 
+                };
+            }
+
             syncLegacyStorage(authUser);
-
             return { success: true, user: authUser };
         }
 
         return { success: false, error: 'Login gagal. Silakan coba lagi.' };
-    } catch {
-        // Network error — try demo fallback
-        return await signInWithDemoFallback(email, password);
+    } catch (catchErr: unknown) {
+        console.error('signIn exception:', catchErr);
+        
+        // ONLY fall back to demo in development environment
+        if (process.env.NODE_ENV === 'development') {
+            return await signInWithDemoFallback(email, password, expectedRole);
+        }
+        
+        return { 
+            success: false, 
+            error: 'Tidak dapat menghubungi server. Silakan coba beberapa saat lagi.' 
+        };
     }
 }
 
+export async function signInAdmin(email: string, password: string): Promise<AuthResult> {
+    return _signInWithRole(email, password, 'admin');
+}
+
+export async function signInPengurus(email: string, password: string): Promise<AuthResult> {
+    return _signInWithRole(email, password, 'pengurus');
+}
+
+export async function signInWarga(email: string, password: string): Promise<AuthResult> {
+    return _signInWithRole(email, password, 'warga');
+}
+
 /**
- * Sign up a new user with Supabase Auth.
+ * Base sign-up function.
  */
-export async function signUp(
+/**
+ * Helper to retry an operation with exponential backoff.
+ */
+async function retryUpsert(
+    operation: () => Promise<{ error: unknown }>,
+    maxRetries = 3,
+    delayMs = 1000
+): Promise<boolean> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const { error } = await operation();
+            if (!error) return true;
+            console.warn(`Sinkronisasi DB gagal (Percobaan ${attempt}/${maxRetries}):`, error);
+        } catch (err) {
+            console.warn(`Sinkronisasi DB melempar kesalahan (Percobaan ${attempt}/${maxRetries}):`, err);
+        }
+        if (attempt < maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, delayMs * Math.pow(2, attempt - 1)));
+        }
+    }
+    return false;
+}
+
+async function _signUpWithRole(
     email: string,
     password: string,
-    metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string }
+    metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string },
+    role: 'admin' | 'pengurus' | 'warga'
 ): Promise<AuthResult> {
     const supabase = createClient();
 
@@ -124,45 +237,124 @@ export async function signUp(
                     blok: metadata.blok || '',
                     no_rumah: metadata.noRumah || '',
                     alamat: metadata.alamat || '',
-                    role: 'warga', // Default role for new registrations
+                    role: role,
                 },
             },
         });
 
         if (error) {
-            // Handle 403 specifically - likely invalid API key or RLS policy
+            const isNetworkError = 
+                error.message?.includes('fetch') || 
+                error.message?.includes('NetworkError') || 
+                error.message?.includes('Failed to fetch') ||
+                error.status === 0;
+
+            if (isNetworkError) {
+                return { 
+                    success: false, 
+                    error: 'Koneksi jaringan terganggu. Silakan periksa koneksi internet Anda dan coba lagi.' 
+                };
+            }
+
             if (error.status === 403 || error.message?.includes('403') || error.message?.includes('Forbidden')) {
                 console.error('Supabase 403 Error: Kemungkinan API key salah atau RLS policy belum dikonfigurasi.', error);
-                return { success: false, error: 'Registrasi gagal (403). Hubungi admin - konfigurasi server perlu diperbaiki.' };
+                return { 
+                    success: false, 
+                    error: 'Registrasi gagal (403). Hubungi pengurus RT - konfigurasi server atau kebijakan keamanan (RLS) perlu diperbaiki.' 
+                };
             }
+            
             return { success: false, error: mapAuthError(error) };
         }
 
         if (data.user) {
-            // Write to the public database tables ('warga' and 'users') for dynamic CRUD and Realtime data sync
             try {
                 const combinedAddress = metadata.alamat || `${metadata.blok || ''} ${metadata.noRumah || ''}`.trim() || 'RT 04';
                 
-                // 1. Sync to public.users table
-                await supabase.from('users').upsert({
+                // 1. Synchronize to public.users table (try SQLite schema first, fall back to Standard)
+                let usersSynced = false;
+                
+                // Try SQLite schema
+                const sqliteUserPayload = {
                     id: data.user.id,
-                    name: metadata.nama,
-                    email: email,
-                    role: 'warga',
-                    phone: metadata.noTelepon || '',
-                    address: combinedAddress,
-                });
-
-                // 2. Sync to public.warga table
-                await supabase.from('warga').upsert({
                     nama: metadata.nama,
+                    email: email,
+                    role: role,
+                    no_telepon: metadata.noTelepon || '',
                     alamat: combinedAddress,
-                    status: 'Baru',
-                    telepon: metadata.noTelepon || '',
-                    email: email
-                });
+                };
+                
+                const syncSqlite = await retryUpsert(() => 
+                    supabase.from('users').upsert(sqliteUserPayload)
+                );
+                
+                if (syncSqlite) {
+                    usersSynced = true;
+                } else {
+                    console.warn('SQLite schema sync failed or column mismatch on public.users. Retrying with Standard schema...');
+                    // Try Standard schema
+                    const standardUserPayload = {
+                        id: data.user.id,
+                        name: metadata.nama,
+                        email: email,
+                        role: role,
+                        phone: metadata.noTelepon || '',
+                        address: combinedAddress,
+                    };
+                    const syncStandard = await retryUpsert(() => 
+                        supabase.from('users').upsert(standardUserPayload)
+                    );
+                    if (syncStandard) {
+                        usersSynced = true;
+                    }
+                }
+
+                if (!usersSynced) {
+                    console.error('Gagal menyelaraskan tabel public.users dengan skema apa pun setelah beberapa percobaan.');
+                }
+
+                // 2. Synchronize to public.warga table (try with email column first, fall back to without email)
+                if (role === 'warga') {
+                    let wargaSynced = false;
+                    
+                    // Try with email column
+                    const fullWargaPayload = {
+                        nama: metadata.nama,
+                        alamat: combinedAddress,
+                        status: 'Baru',
+                        telepon: metadata.noTelepon || '',
+                        email: email,
+                    };
+                    
+                    const syncFullWarga = await retryUpsert(() => 
+                        supabase.from('warga').upsert(fullWargaPayload)
+                    );
+                    
+                    if (syncFullWarga) {
+                        wargaSynced = true;
+                    } else {
+                        console.warn('Warga sync with email column failed. Retrying without email column...');
+                        // Try without email column
+                        const leanWargaPayload = {
+                            nama: metadata.nama,
+                            alamat: combinedAddress,
+                            status: 'Baru',
+                            telepon: metadata.noTelepon || '',
+                        };
+                        const syncLeanWarga = await retryUpsert(() => 
+                            supabase.from('warga').upsert(leanWargaPayload)
+                        );
+                        if (syncLeanWarga) {
+                            wargaSynced = true;
+                        }
+                    }
+                    
+                    if (!wargaSynced) {
+                        console.error('Gagal menyelaraskan tabel public.warga dengan skema apa pun setelah beberapa percobaan.');
+                    }
+                }
             } catch (dbErr) {
-                console.warn('Supabase DB sync error during registration:', dbErr);
+                console.error('Terjadi kesalahan tidak terduga saat sinkronisasi database:', dbErr);
             }
 
             const authUser = mapSupabaseUser(data.user);
@@ -173,6 +365,18 @@ export async function signUp(
     } catch {
         return { success: false, error: 'Tidak dapat terhubung ke server. Coba lagi nanti.' };
     }
+}
+
+export async function signUpAdmin(email: string, password: string, metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string }): Promise<AuthResult> {
+    return _signUpWithRole(email, password, metadata, 'admin');
+}
+
+export async function signUpPengurus(email: string, password: string, metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string }): Promise<AuthResult> {
+    return _signUpWithRole(email, password, metadata, 'pengurus');
+}
+
+export async function signUpWarga(email: string, password: string, metadata: { nama: string; noTelepon?: string; blok?: string; noRumah?: string; alamat?: string }): Promise<AuthResult> {
+    return _signUpWithRole(email, password, metadata, 'warga');
 }
 
 /**
@@ -268,6 +472,108 @@ export async function resetPassword(email: string): Promise<AuthResult> {
     }
 }
 
+/**
+ * Update user profile details and profile photo without requiring Supabase PostgreSQL database schema modifications.
+ * Utilizes Supabase Auth user_metadata JSONB and browser-side secureStorage for large files like photos.
+ */
+export async function updateProfile(
+    metadata: { nama: string; noTelepon?: string; alamat?: string; avatarUrl?: string },
+    profilePhotoBase64?: string
+): Promise<AuthResult> {
+    const supabase = createClient();
+
+    try {
+        // 1. Update standard metadata inside Supabase Auth user_metadata (JSONB block in auth.users)
+        // This is managed natively by Supabase Auth and doesn't require any DB schema alterations!
+        const { data, error } = await supabase.auth.updateUser({
+            data: {
+                nama: metadata.nama,
+                no_telepon: metadata.noTelepon || '',
+                alamat: metadata.alamat || '',
+                avatar_url: metadata.avatarUrl || '',
+            }
+        });
+
+        if (error) {
+            console.error('Supabase auth.updateUser error:', error.message);
+            // Return failure if Supabase rejects it
+            return { success: false, error: mapAuthError(error) };
+        }
+
+        if (data.user) {
+            // 2. Save the base64 photo locally in our encrypted secureStorage
+            // Large base64 files are saved locally to prevent exceeding Supabase Auth metadata limits (typically 32KB).
+            if (typeof window !== 'undefined' && profilePhotoBase64) {
+                try {
+                    localStorage.setItem('warga_photo', profilePhotoBase64);
+                    secureStorage.set('warga_photo', profilePhotoBase64, { encrypt: true });
+                } catch (storeErr) {
+                    console.warn('Gagal menyimpan foto profil ke penyimpanan lokal:', storeErr);
+                }
+            }
+
+            // 3. Try to sync to the public database tables as a background fallback.
+            // If the public tables are missing columns or RLS blocks it, we catch it and ignore it
+            // because we are fully utilizing Supabase Auth metadata and local storage as our source of truth!
+            try {
+                const combinedAddress = metadata.alamat || '';
+                
+                // Try SQLite schema first
+                const sqlitePayload = {
+                    id: data.user.id,
+                    nama: metadata.nama,
+                    no_telepon: metadata.noTelepon || '',
+                    alamat: combinedAddress,
+                };
+                
+                const syncSqlite = await supabase.from('users').upsert(sqlitePayload);
+                if (syncSqlite.error) {
+                    // Fallback to Standard schema
+                    const standardPayload = {
+                        id: data.user.id,
+                        name: metadata.nama,
+                        phone: metadata.noTelepon || '',
+                        address: combinedAddress,
+                    };
+                    await supabase.from('users').upsert(standardPayload);
+                }
+
+                // Sync to public.warga if they are a resident
+                const authUser = mapSupabaseUser(data.user);
+                if (authUser.role === 'warga') {
+                    const fullWargaPayload = {
+                        nama: metadata.nama,
+                        alamat: combinedAddress,
+                        telepon: metadata.noTelepon || '',
+                        email: data.user.email || '',
+                    };
+                    const syncWarga = await supabase.from('warga').upsert(fullWargaPayload);
+                    if (syncWarga.error) {
+                        const leanWargaPayload = {
+                            nama: metadata.nama,
+                            alamat: combinedAddress,
+                            telepon: metadata.noTelepon || '',
+                        };
+                        await supabase.from('warga').upsert(leanWargaPayload);
+                    }
+                }
+            } catch (dbErr) {
+                console.warn('Non-blocking DB sync failure during profile update:', dbErr);
+            }
+
+            const updatedUser = mapSupabaseUser(data.user);
+            syncLegacyStorage(updatedUser);
+
+            return { success: true, user: updatedUser };
+        }
+
+        return { success: false, error: 'Gagal memperbarui profil.' };
+    } catch (catchErr) {
+        console.error('updateProfile exception:', catchErr);
+        return { success: false, error: 'Tidak dapat terhubung ke server autentikasi.' };
+    }
+}
+
 // ============================================
 // Internal Helpers
 // ============================================
@@ -275,30 +581,39 @@ export async function resetPassword(email: string): Promise<AuthResult> {
 /**
  * Map Supabase User to our AuthUser interface.
  */
-function mapSupabaseUser(user: User): AuthUser {
+function mapSupabaseUser(user: User, dbUser?: DbUserProfile | null): AuthUser {
     const metadata = user.user_metadata || {};
-    const role = (metadata.role as string) || 'warga';
+    // Primary from public.users table, secondary from user_metadata, fallback to 'warga'
+    const role = (dbUser?.role as string) || (metadata.role as string) || 'warga';
+    const nama = (dbUser?.name as string) || (metadata.nama as string) || user.email?.split('@')[0] || 'User';
 
     return {
         id: user.id,
-        email: user.email || '',
-        nama: (metadata.nama as string) || user.email?.split('@')[0] || 'User',
+        email: user.email || (dbUser?.email as string) || '',
+        nama: nama,
         role: role as AuthUser['role'],
         permissions: ROLE_PERMISSIONS[role] || ROLE_PERMISSIONS.warga,
-        avatarUrl: metadata.avatar_url as string | undefined,
-        metadata,
+        avatarUrl: (dbUser?.avatar_url as string) || (metadata.avatar_url as string | undefined),
+        metadata: {
+            ...metadata,
+            ...(dbUser || {}),
+        },
     };
 }
 
 /**
  * Fallback: authenticate using demo credentials when Supabase is unavailable.
  */
-async function signInWithDemoFallback(email: string, password: string): Promise<AuthResult> {
+async function signInWithDemoFallback(email: string, password: string, expectedRole: string): Promise<AuthResult> {
     try {
         const { authenticateDemo } = await import('@/lib/demo-credentials');
         const user = await authenticateDemo(email, password);
 
         if (user) {
+            if (user.role !== expectedRole) {
+                return { success: false, error: `Akses ditolak. Email ini tidak terdaftar sebagai ${expectedRole}.` };
+            }
+
             const authUser: AuthUser = {
                 id: String(user.id),
                 email: user.email,
@@ -360,6 +675,7 @@ function syncLegacyStorage(user: AuthUser): void {
 
     try {
         localStorage.setItem('warga_logged_in', 'true'); // Simple flag only (non-sensitive)
+        document.cookie = "warga_session=true; path=/; max-age=86400; SameSite=Lax; secure";
 
         // SEC-FIX: Store profile in encrypted secureStorage instead of plaintext localStorage
         const profileData = {
@@ -395,6 +711,7 @@ function clearLegacyStorage(): void {
 
     try {
         localStorage.removeItem('warga_logged_in');
+        document.cookie = "warga_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
         localStorage.removeItem('warga_profile');
         localStorage.removeItem('warga_photo');
         localStorage.removeItem('prisma_credentials');

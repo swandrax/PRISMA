@@ -155,6 +155,7 @@ export function useAuthViewModel() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('prisma_credentials');
       clearSecureCredentials(); // SEC-FIX: Also clear encrypted storage
+      document.cookie = "warga_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
     }
     setState(prev => ({
       ...prev,

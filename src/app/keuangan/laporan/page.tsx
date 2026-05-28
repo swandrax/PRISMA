@@ -28,6 +28,7 @@ import {
     Calculator
 } from "lucide-react"
 import { formatCurrency, calculateVariance } from "@/lib/financial-utils"
+import KeuanganLoading from "@/app/keuangan/loading"
 
 interface Transaction {
     id: string;
@@ -250,11 +251,7 @@ export default function LaporanKeuanganPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
+        return <KeuanganLoading />;
     }
 
     const expensesVariance = selectedMonth && prevMonth

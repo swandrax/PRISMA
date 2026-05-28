@@ -6,8 +6,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { WhatsAppDirect } from "@/components/whatsapp-direct";
+import MbakPrismaChat from "@/components/chat/MbakPrismaChat";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -22,7 +23,7 @@ const outfit = Outfit({
 
 // SEO Metadata Configuration
 export const metadata: Metadata = {
-  metadataBase: new URL('https://prisma-rt04.vercel.app'), // Replace with your actual domain
+  metadataBase: new URL('https://prisma-rt-04.vercel.app'), // Replace with your actual domain
   title: {
     default: "PRISMA RT 04 Kemayoran - Sistem Warga Digital",
     template: "%s | PRISMA RT 04"
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PRISMA RT 04 Kemayoran",
     description: "Sistem Manajemen Digital RT 04/RW 09 Kemayoran. Transparansi & Pelayanan dalam genggaman.",
-    url: 'https://prisma-rt04.vercel.app',
+    url: 'https://prisma-rt-04.vercel.app',
     siteName: 'PRISMA RT 04',
     type: 'website',
     locale: 'id_ID',
@@ -40,7 +41,8 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-  }
+  },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
@@ -60,8 +62,8 @@ const jsonLd = {
   "@type": "GovernmentService",
   "name": "Sekretariat RT 04 RW 09 Kemayoran",
   "alternateName": "PRISMA RT 04",
-  "url": "https://prisma-rt04.vercel.app",
-  "image": "https://prisma-rt04.vercel.app/og-image.jpg", // Placeholder
+  "url": "https://prisma-rt-04.vercel.app",
+  "image": "https://prisma-rt-04.vercel.app/og-image.jpg", // Placeholder
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Gg. Bugis No.95",
@@ -119,8 +121,9 @@ export default function RootLayout({
             <main id="main-content" className="flex-1" role="main">
               {children}
             </main>
-            <PWAInstallPrompt />
+            <InstallPrompt />
             <WhatsAppDirect />
+            <MbakPrismaChat />
             <Footer />
           </AuthProvider>
         </ThemeProvider>

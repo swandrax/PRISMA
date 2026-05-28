@@ -13,8 +13,12 @@
 
 import { useState, useEffect, useCallback, useRef, createContext, useContext, type ReactNode } from 'react';
 import {
-    signIn as authSignIn,
-    signUp as authSignUp,
+    signInWarga,
+    signUpWarga,
+    signInPengurus,
+    signUpPengurus,
+    signInAdmin,
+    signUpAdmin,
     signOut as authSignOut,
     getCurrentUser,
     onAuthStateChange,
@@ -34,8 +38,8 @@ interface AuthContextType {
     error: string | null;
 
     // Actions
-    signIn: (email: string, password: string) => Promise<AuthResult>;
-    signUp: (email: string, password: string, metadata: { nama: string; noTelepon?: string }) => Promise<AuthResult>;
+    signIn: (email: string, password: string, role?: 'warga'|'pengurus'|'admin') => Promise<AuthResult>;
+    signUp: (email: string, password: string, metadata: { nama: string; noTelepon?: string }, role?: 'warga'|'pengurus'|'admin') => Promise<AuthResult>;
     signOut: () => Promise<void>;
     resetPassword: (email: string) => Promise<AuthResult>;
     clearError: () => void;
@@ -91,11 +95,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     // Sign in
-    const handleSignIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const handleSignIn = useCallback(async (email: string, password: string, role: 'warga'|'pengurus'|'admin' = 'warga'): Promise<AuthResult> => {
         setError(null);
         setIsLoading(true);
 
-        const result = await authSignIn(email, password);
+        let result;
+        if (role === 'admin') result = await signInAdmin(email, password);
+        else if (role === 'pengurus') result = await signInPengurus(email, password);
+        else result = await signInWarga(email, password);
 
         if (result.success && result.user) {
             setUser(result.user);
@@ -111,12 +118,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleSignUp = useCallback(async (
         email: string,
         password: string,
-        metadata: { nama: string; noTelepon?: string }
+        metadata: { nama: string; noTelepon?: string },
+        role: 'warga'|'pengurus'|'admin' = 'warga'
     ): Promise<AuthResult> => {
         setError(null);
         setIsLoading(true);
 
-        const result = await authSignUp(email, password, metadata);
+        let result;
+        if (role === 'admin') result = await signUpAdmin(email, password, metadata);
+        else if (role === 'pengurus') result = await signUpPengurus(email, password, metadata);
+        else result = await signUpWarga(email, password, metadata);
 
         if (result.success && result.user) {
             setUser(result.user);
@@ -231,10 +242,14 @@ function useAuthStandalone(): AuthContextType {
         return () => { mounted = false; unsubscribe(); };
     }, []);
 
-    const handleSignIn = useCallback(async (email: string, password: string) => {
+    const handleSignIn = useCallback(async (email: string, password: string, role: 'warga'|'pengurus'|'admin' = 'warga') => {
         setError(null);
         setIsLoading(true);
-        const result = await authSignIn(email, password);
+        let result;
+        if (role === 'admin') result = await signInAdmin(email, password);
+        else if (role === 'pengurus') result = await signInPengurus(email, password);
+        else result = await signInWarga(email, password);
+        
         if (result.success && result.user) setUser(result.user);
         else if (result.error) setError(result.error);
         setIsLoading(false);

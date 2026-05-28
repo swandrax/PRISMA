@@ -118,11 +118,11 @@ export function Footer() {
                                 className="flex items-center gap-2.5 text-sm text-muted-foreground hover:text-primary transition-colors"
                             >
                                 <Mail className="h-4 w-4 shrink-0" />
-                                <span>rerryadusundaru12@gmail.com</span>
+                                <span>Kirim Email</span>
                             </a>
                             <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
                                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                                <span>Gg. Bugis No.95, RT 04/RW 09, Kemayoran, Jakarta Pusat 10620</span>
+                                <span>Kemayoran, Jakarta Pusat</span>
                             </div>
                             <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                                 <Clock className="h-4 w-4 shrink-0" />

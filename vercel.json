@@ -1,32 +1,8 @@
 {
-    "experimentalServices": {
-        "frontend": {
-            "routePrefix": "/",
-            "framework": "nextjs"
-        },
-        "ai-service": {
-            "entrypoint": "services/ai-service",
-            "routePrefix": "/_/ai-service"
-        },
-        "gateway": {
-            "entrypoint": "services/gateway",
-            "routePrefix": "/_/gateway"
-        },
-        "keamanan-service": {
-            "entrypoint": "services/keamanan-service",
-            "routePrefix": "/_/keamanan-service"
-        },
-        "keuangan-service": {
-            "entrypoint": "services/keuangan-service",
-            "routePrefix": "/_/keuangan-service"
-        },
-        "surat-service": {
-            "entrypoint": "services/surat-service",
-            "routePrefix": "/_/surat-service"
-        },
-        "warga-service": {
-            "entrypoint": "services/warga-service",
-            "routePrefix": "/_/warga-service"
-        }
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
+  ]
 }

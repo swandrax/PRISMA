@@ -10,8 +10,14 @@ const withSerwist = withSerwistInit({
   disable: process.env.NODE_ENV !== "production",
 });
 
+// Conditionally enable static export for Cloudflare Pages or manual static builds
+const isStaticExport = 
+  process.env.STATIC_EXPORT === 'true' || 
+  process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true' || 
+  !!process.env.CF_PAGES;
+
 const nextConfig: NextConfig = {
-  output: 'export',
+  ...(isStaticExport ? { output: 'export', trailingSlash: true } : {}),
   images: {
     unoptimized: true,
     formats: ['image/avif', 'image/webp'],
@@ -22,13 +28,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
-  // Trailing slash for hosting compatibility
-  trailingSlash: true,
   // Performance: compress responses
   compress: true,
   // Security: remove X-Powered-By header
   poweredByHeader: false,
-  // Security headers for all routes (now managed by _headers on Cloudflare Pages/Static hosting)
   // Structured logging
   logging: {
     fetches: {

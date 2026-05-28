@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -43,14 +45,14 @@ interface DashboardStats {
 }
 
 const defaultStats: DashboardStats = {
-    totalWarga: 150,
-    totalKK: 45,
-    wargaAktif: 142,
-    pendatangBaru: 3,
-    totalSurat: { pending: 5, diproses: 2, selesai: 23 },
-    totalKeuangan: { saldo: 2500000, pemasukan: 700000, pengeluaran: 800000 },
-    totalLaporan: { pending: 1, resolved: 7 },
-    totalFiles: 28,
+    totalWarga: 0,
+    totalKK: 0,
+    wargaAktif: 0,
+    pendatangBaru: 0,
+    totalSurat: { pending: 0, diproses: 0, selesai: 0 },
+    totalKeuangan: { saldo: 0, pemasukan: 0, pengeluaran: 0 },
+    totalLaporan: { pending: 0, resolved: 0 },
+    totalFiles: 0,
 };
 
 interface MenuCard {
@@ -106,6 +108,14 @@ const adminMenus: MenuCard[] = [
         color: 'from-red-600 to-orange-600',
     },
     {
+        id: 'pengumuman',
+        title: 'Pengumuman CMS',
+        description: 'Kelola konten pengumuman dan jadwal',
+        icon: Folder,
+        href: '/admin/pengumuman',
+        color: 'from-indigo-600 to-purple-600',
+    },
+    {
         id: 'pengaturan',
         title: 'Pengaturan',
         description: 'Konfigurasi sistem dan akun',
@@ -124,7 +134,34 @@ function formatCurrency(amount: number): string {
 }
 
 export default function AdminDashboard() {
-    const stats = defaultStats;
+    const [stats, setStats] = useState<DashboardStats>(defaultStats);
+
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                // Initialize supabase client dynamically inside useEffect to avoid SSR issues
+                const { createClient } = await import('@/utils/supabase/client');
+                const supabase = createClient();
+                
+                // Fetch stats concurrently
+                const [wargaRes, suratRes, keuanganRes] = await Promise.all([
+                    supabase.from('warga').select('id', { count: 'exact', head: true }),
+                    supabase.from('pengajuan_surat').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+                    supabase.from('keuangan_bulanan').select('saldo').order('tahun', { ascending: false }).order('bulan', { ascending: false }).limit(1)
+                ]);
+
+                setStats((prev) => ({
+                    ...prev,
+                    totalWarga: wargaRes.count || 0,
+                    totalSurat: { ...prev.totalSurat, pending: suratRes.count || 0 },
+                    totalKeuangan: { ...prev.totalKeuangan, saldo: keuanganRes.data?.[0]?.saldo || 0 }
+                }));
+            } catch (error) {
+                console.error("Failed to fetch dashboard stats", error);
+            }
+        }
+        fetchStats();
+    }, []);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8">

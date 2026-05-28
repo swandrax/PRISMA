@@ -1,40 +1,41 @@
+// c:\Users\user\Desktop\prisma\src\app\galeri\page.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import Link from "next/link"
+import { createClient } from "@/utils/supabase/client"
 import {
     Camera,
     ArrowLeft,
-    X,
-    ChevronLeft,
-    ChevronRight,
     Calendar,
-    MapPin,
     Users,
     Maximize2,
     Filter,
 } from "lucide-react"
-import { galleryData } from "@/components/home/gallery-showcase"
+
+// Lightbox imports
+import Lightbox from "yet-another-react-lightbox"
+import "yet-another-react-lightbox/styles.css"
 
 const categories = [
     { key: "all", label: "Semua" },
-    { key: "rapat", label: "Rapat", color: "bg-blue-500" },
-    { key: "perayaan", label: "Perayaan", color: "bg-amber-500" },
-    { key: "keamanan", label: "Keamanan", color: "bg-red-500" },
-    { key: "sosial", label: "Sosial", color: "bg-purple-500" },
+    { key: "Kegiatan", label: "Kegiatan", color: "bg-blue-500" },
+    { key: "Sosial", label: "Sosial", color: "bg-purple-500" },
+    { key: "Keamanan", label: "Keamanan", color: "bg-red-500" },
+    { key: "Rapat", label: "Rapat", color: "bg-emerald-500" },
+    { key: "Perayaan", label: "Perayaan", color: "bg-amber-500" },
 ]
 
 const categoryColors: Record<string, string> = {
-    "kerja-bakti": "bg-emerald-500",
-    "rapat": "bg-blue-500",
-    "kesehatan": "bg-pink-500",
-    "perayaan": "bg-amber-500",
-    "keamanan": "bg-red-500",
-    "sosial": "bg-purple-500",
+    "Kegiatan": "bg-blue-500",
+    "Sosial": "bg-purple-500",
+    "Keamanan": "bg-red-500",
+    "Rapat": "bg-emerald-500",
+    "Perayaan": "bg-amber-500",
 }
 
 function formatDate(dateStr: string): string {
@@ -43,22 +44,50 @@ function formatDate(dateStr: string): string {
     }).format(new Date(dateStr))
 }
 
+interface GaleriItem {
+    id: string;
+    judul: string;
+    deskripsi: string;
+    kategori: string;
+    tanggal: string;
+    peserta_count: number;
+    image_url: string;
+}
+
 export default function GalleryPage() {
     const [activeCategory, setActiveCategory] = useState("all")
-    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+    const [lightboxIndex, setLightboxIndex] = useState(-1)
+    const [data, setData] = useState<GaleriItem[]>([])
+    const [loading, setLoading] = useState(true)
+
+    const supabase = createClient()
+
+    useEffect(() => {
+        async function fetchGallery() {
+            const { data: galeriData, error } = await supabase
+                .from('galeri')
+                .select('*')
+                .order('is_featured', { ascending: false })
+                .order('tanggal', { ascending: false })
+
+            if (!error && galeriData) {
+                setData(galeriData)
+            }
+            setLoading(false)
+        }
+        fetchGallery()
+    }, [supabase])
 
     const filteredItems = activeCategory === "all"
-        ? galleryData
-        : galleryData.filter(item => item.category === activeCategory)
+        ? data
+        : data.filter(item => item.kategori === activeCategory)
 
-    const openLightbox = (index: number) => setLightboxIndex(index)
-    const closeLightbox = () => setLightboxIndex(null)
-    const goNext = () => {
-        if (lightboxIndex !== null) setLightboxIndex((lightboxIndex + 1) % filteredItems.length)
-    }
-    const goPrev = () => {
-        if (lightboxIndex !== null) setLightboxIndex((lightboxIndex - 1 + filteredItems.length) % filteredItems.length)
-    }
+    // Slides for lightbox
+    const slides = filteredItems.map(item => ({
+        src: item.image_url,
+        title: item.judul,
+        description: item.deskripsi
+    }))
 
     return (
         <div className="min-h-screen bg-background">
@@ -81,7 +110,7 @@ export default function GalleryPage() {
                         </h1>
                     </div>
                     <p className="text-muted-foreground max-w-2xl mt-2">
-                        Dokumentasi lengkap kegiatan warga RT 04 Kemayoran. Klik foto untuk melihat detail dan keterangan kegiatan.
+                        Dokumentasi lengkap kegiatan warga RT 04 Kemayoran. Klik foto untuk melihat detail.
                     </p>
 
                     {/* Category Filter */}
@@ -101,97 +130,107 @@ export default function GalleryPage() {
                             </button>
                         ))}
                     </div>
-
-                    <p className="text-xs text-muted-foreground mt-3">
-                        Menampilkan {filteredItems.length} dari {galleryData.length} foto
-                    </p>
+                    
+                    {!loading && (
+                        <p className="text-xs text-muted-foreground mt-3">
+                            Menampilkan {filteredItems.length} foto
+                        </p>
+                    )}
                 </div>
             </div>
 
             {/* Gallery Grid */}
             <div className="container mx-auto px-4 max-w-6xl pb-16">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeCategory}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.25 }}
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-                    >
-                        {filteredItems.map((item, index) => {
-                            const catColor = categoryColors[item.category] || "bg-gray-500"
-                            return (
-                                <motion.div
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.05 }}
-                                >
-                                    <Card
-                                        className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:translate-y-[-4px] border border-border/50"
-                                        onClick={() => openLightbox(index)}
+                {loading ? (
+                    <div className="text-center py-20 text-muted-foreground">
+                        Memuat galeri...
+                    </div>
+                ) : (
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeCategory}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.25 }}
+                            className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4"
+                        >
+                            {filteredItems.map((item, index) => {
+                                const catColor = categoryColors[item.kategori] || "bg-gray-500"
+                                return (
+                                    <motion.div
+                                        key={item.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        className="break-inside-avoid"
                                     >
-                                        <div className="relative aspect-[16/10] overflow-hidden">
-                                            <Image
-                                                src={item.src}
-                                                alt={item.title}
-                                                fill
-                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                                            <div className="absolute top-3 left-3">
-                                                <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold text-white ${catColor} shadow-lg`}>
-                                                    {categories.find(c => c.key === item.category)?.label}
-                                                </span>
-                                            </div>
-
-                                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <div className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white">
-                                                    <Maximize2 className="w-4 h-4" />
+                                        <Card
+                                            className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:translate-y-[-4px] border border-border/50"
+                                            onClick={() => setLightboxIndex(index)}
+                                        >
+                                            <div className="relative">
+                                                {/* We don't have aspect ratio here, relying on masonry layout so Image needs to be responsive.
+                                                    Next.js Image requires width/height or fill. We will use an aspect container for now. 
+                                                */}
+                                                <div className="relative w-full aspect-[4/3] overflow-hidden bg-slate-100">
+                                                    <Image
+                                                        src={item.image_url}
+                                                        alt={item.judul}
+                                                        fill
+                                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        placeholder="blur"
+                                                        blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" // simple gray blur
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    
+                                                    <div className="absolute top-3 left-3">
+                                                        <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold text-white ${catColor} shadow-lg`}>
+                                                            {item.kategori}
+                                                        </span>
+                                                    </div>
+    
+                                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                        <div className="p-2 rounded-full bg-black/50 backdrop-blur-sm text-white">
+                                                            <Maximize2 className="w-4 h-4" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Detail Caption */}
+                                                <div className="p-4">
+                                                    <h3 className="font-semibold text-base mb-1.5 group-hover:text-primary transition-colors">
+                                                        {item.judul}
+                                                    </h3>
+                                                    {item.deskripsi && (
+                                                        <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">
+                                                            {item.deskripsi}
+                                                        </p>
+                                                    )}
+                                                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <Calendar className="w-3 h-3" />
+                                                            {formatDate(item.tanggal)}
+                                                        </span>
+                                                        {item.peserta_count > 0 && (
+                                                            <span className="inline-flex items-center gap-1">
+                                                                <Users className="w-3 h-3" />
+                                                                {item.peserta_count} peserta
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
+                                        </Card>
+                                    </motion.div>
+                                )
+                            })}
+                        </motion.div>
+                    </AnimatePresence>
+                )}
 
-                                            <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <h3 className="text-white font-bold text-lg drop-shadow-lg">{item.title}</h3>
-                                            </div>
-                                        </div>
-
-                                        {/* Detail Caption */}
-                                        <div className="p-4">
-                                            <h3 className="font-semibold text-base mb-1.5 group-hover:text-primary transition-colors">
-                                                {item.title}
-                                            </h3>
-                                            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                                                {item.caption}
-                                            </p>
-                                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                                                <span className="inline-flex items-center gap-1">
-                                                    <Calendar className="w-3 h-3" />
-                                                    {formatDate(item.date)}
-                                                </span>
-                                                <span className="inline-flex items-center gap-1">
-                                                    <MapPin className="w-3 h-3" />
-                                                    {item.location}
-                                                </span>
-                                                {item.participants && (
-                                                    <span className="inline-flex items-center gap-1">
-                                                        <Users className="w-3 h-3" />
-                                                        {item.participants} peserta
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            )
-                        })}
-                    </motion.div>
-                </AnimatePresence>
-
-                {filteredItems.length === 0 && (
+                {!loading && filteredItems.length === 0 && (
                     <div className="text-center py-20 text-muted-foreground">
                         <Camera className="w-12 h-12 mx-auto mb-4 opacity-30" />
                         <p>Belum ada foto untuk kategori ini.</p>
@@ -199,93 +238,12 @@ export default function GalleryPage() {
                 )}
             </div>
 
-            {/* Lightbox */}
-            <AnimatePresence>
-                {lightboxIndex !== null && filteredItems[lightboxIndex] && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-                        onClick={closeLightbox}
-                    >
-                        <button
-                            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
-                            onClick={closeLightbox}
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
-
-                        <button
-                            className="absolute left-2 md:left-6 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
-                            onClick={(e) => { e.stopPropagation(); goPrev() }}
-                        >
-                            <ChevronLeft className="w-6 h-6" />
-                        </button>
-
-                        <button
-                            className="absolute right-2 md:right-6 p-2 md:p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
-                            onClick={(e) => { e.stopPropagation(); goNext() }}
-                        >
-                            <ChevronRight className="w-6 h-6" />
-                        </button>
-
-                        <motion.div
-                            key={lightboxIndex}
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                            className="relative w-full max-w-4xl mx-4 md:mx-8"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl">
-                                <Image
-                                    src={filteredItems[lightboxIndex].src}
-                                    alt={filteredItems[lightboxIndex].title}
-                                    fill
-                                    sizes="(max-width: 1024px) 100vw, 80vw"
-                                    className="object-cover"
-                                    priority
-                                />
-                            </div>
-
-                            <div className="mt-4 bg-white/10 backdrop-blur-md rounded-xl p-4 md:p-6 text-white">
-                                <div className="flex items-start justify-between gap-4 mb-2">
-                                    <h3 className="text-xl md:text-2xl font-bold">
-                                        {filteredItems[lightboxIndex].title}
-                                    </h3>
-                                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold text-white ${categoryColors[filteredItems[lightboxIndex].category]} shrink-0`}>
-                                        {categories.find(c => c.key === filteredItems[lightboxIndex].category)?.label}
-                                    </span>
-                                </div>
-                                <p className="text-white/80 text-sm md:text-base leading-relaxed mb-3">
-                                    {filteredItems[lightboxIndex].caption}
-                                </p>
-                                <div className="flex flex-wrap items-center gap-4 text-xs text-white/60">
-                                    <span className="inline-flex items-center gap-1">
-                                        <Calendar className="w-3.5 h-3.5" />
-                                        {formatDate(filteredItems[lightboxIndex].date)}
-                                    </span>
-                                    <span className="inline-flex items-center gap-1">
-                                        <MapPin className="w-3.5 h-3.5" />
-                                        {filteredItems[lightboxIndex].location}
-                                    </span>
-                                    {filteredItems[lightboxIndex].participants && (
-                                        <span className="inline-flex items-center gap-1">
-                                            <Users className="w-3.5 h-3.5" />
-                                            {filteredItems[lightboxIndex].participants} peserta
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="mt-3 text-center text-white/40 text-xs">
-                                    {lightboxIndex + 1} / {filteredItems.length}
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <Lightbox
+                open={lightboxIndex >= 0}
+                close={() => setLightboxIndex(-1)}
+                index={lightboxIndex}
+                slides={slides}
+            />
         </div>
     )
 }

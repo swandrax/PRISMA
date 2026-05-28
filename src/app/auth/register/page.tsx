@@ -8,12 +8,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { User, Phone, MapPin, Loader2, Mail, Lock, CheckCircle, AlertCircle, Shield } from "lucide-react"
-import { signUp } from "@/lib/supabase-auth"
+import { signUpAdmin, signUpPengurus, signUpWarga } from "@/lib/supabase-auth"
 import { validateEmailFormat } from "@/lib/security"
+
+type Role = 'warga' | 'pengurus' | 'admin'
 
 export default function RegisterPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
+    const [selectedRole, setSelectedRole] = React.useState<Role>('warga')
     const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
     const [successMsg, setSuccessMsg] = React.useState<string | null>(null)
 
@@ -44,11 +47,20 @@ export default function RegisterPage() {
             return
         }
 
-        const result = await signUp(email, password, {
+        const metadata = {
             nama: name,
             noTelepon: phone,
             alamat: address,
-        })
+        }
+
+        let result;
+        if (selectedRole === 'admin') {
+            result = await signUpAdmin(email, password, metadata)
+        } else if (selectedRole === 'pengurus') {
+            result = await signUpPengurus(email, password, metadata)
+        } else {
+            result = await signUpWarga(email, password, metadata)
+        }
 
         setIsLoading(false)
 
@@ -148,6 +160,36 @@ export default function RegisterPage() {
                                             <span className="font-semibold block mb-0.5">Dukungan Email Pribadi & Keamanan Data</span>
                                             Warga RT 04 dapat mendaftar menggunakan email pribadi seperti <strong className="font-medium text-blue-800 dark:text-blue-200">@gmail.com</strong>. Seluruh data Anda dienkripsi penuh di browser (AES-256-GCM) sebelum dikirimkan ke server.
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label>Mendaftar Sebagai</Label>
+                                    <div className="flex gap-2">
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'warga' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('warga')}
+                                            className="flex-1"
+                                        >
+                                            Warga
+                                        </Button>
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'pengurus' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('pengurus')}
+                                            className="flex-1"
+                                        >
+                                            Pengurus
+                                        </Button>
+                                        <Button 
+                                            type="button"
+                                            variant={selectedRole === 'admin' ? 'default' : 'outline'} 
+                                            onClick={() => setSelectedRole('admin')}
+                                            className="flex-1"
+                                        >
+                                            Admin
+                                        </Button>
                                     </div>
                                 </div>
 
