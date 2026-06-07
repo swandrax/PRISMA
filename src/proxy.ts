@@ -9,7 +9,7 @@ const subdomainCache = new Map<string, { id: string, kode: string, nama: string 
 let cacheLastUpdated = 0;
 const CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutes
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname, hostname } = request.nextUrl
 
     // Ignore static files and api routes for subdomain routing
