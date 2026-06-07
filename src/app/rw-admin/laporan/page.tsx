@@ -1,7 +1,7 @@
 // c:\Users\user\Desktop\prisma\src\app\rw-admin\laporan\page.tsx
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,7 @@ export default function LaporanRWPage() {
     
     const supabase = createClient()
 
-    const fetchLaporan = async () => {
+    const fetchLaporan = useCallback(async () => {
         setLoading(true)
         const { data: rts } = await supabase.from('rt_units').select('id, kode_rt, nama').eq('is_active', true)
         
@@ -62,11 +62,12 @@ export default function LaporanRWPage() {
 
         setData(laporanData)
         setLoading(false)
-    }
+    }, [bulan, tahun, supabase])
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchLaporan()
-    }, [bulan, tahun])
+    }, [fetchLaporan])
 
     const handlePrint = () => {
         window.print()

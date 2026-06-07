@@ -1,7 +1,7 @@
 // c:\Users\user\Desktop\prisma\src\app\admin\galeri\page.tsx
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -38,7 +38,7 @@ export default function AdminGaleriPage() {
 
     const supabase = createClient()
 
-    const fetchGaleri = async () => {
+    const fetchGaleri = useCallback(async () => {
         setLoading(true)
         const { data: items, error } = await supabase
             .from('galeri')
@@ -47,11 +47,11 @@ export default function AdminGaleriPage() {
 
         if (!error) setData(items || [])
         setLoading(false)
-    }
+    }, [supabase])
 
     useEffect(() => {
         fetchGaleri()
-    }, [])
+    }, [fetchGaleri])
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {

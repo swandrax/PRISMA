@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Menu, X, Bell, User, ChevronDown, FileText, BarChart3, ShieldAlert, ShieldCheck, LogOut, Settings } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -28,12 +29,12 @@ export function Navbar() {
             const loggedIn = localStorage.getItem('warga_logged_in') === 'true'
             
             // Safe decryption of profile using secureStorage helper
-            const profile = secureStorage.get<any>('warga_profile')
+            const profile = secureStorage.get<Record<string, unknown>>('warga_profile')
             const photo = secureStorage.get<string>('warga_photo') || localStorage.getItem('warga_photo')
 
             if (loggedIn && profile) {
                 setIsLoggedIn(true)
-                setUserName(profile.nama || 'Warga')
+                setUserName((profile.nama as string) || 'Warga')
             } else {
                 setIsLoggedIn(false)
                 setUserName("")
@@ -152,7 +153,7 @@ export function Navbar() {
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="outline" size="sm" className="gap-2">
                                         {userPhoto ? (
-                                            <img src={userPhoto} alt="Profile" className="h-5 w-5 rounded-full object-cover" />
+                                            <Image src={userPhoto} alt="Profile" width={20} height={20} className="h-5 w-5 rounded-full object-cover" />
                                         ) : (
                                             <User className="h-4 w-4" />
                                         )}

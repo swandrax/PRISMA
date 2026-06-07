@@ -3,7 +3,7 @@ import { bot } from './bot';
 
 const adminChatId = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_GROUP_ID;
 
-export async function notifyNewSurat(data: any) {
+export async function notifyNewSurat(data: { jenis: string; nama_pemohon?: string }) {
     if (!adminChatId) return;
 
     const message = `
@@ -22,7 +22,7 @@ Mohon pengurus segera memeriksa dashboard admin PRISMA.
     ]);
 }
 
-export async function notifySuratStatus(data: any) {
+export async function notifySuratStatus(data: { status: string; jenis: string; catatan?: string; user_chat_id?: string | number }) {
     // If we have the user's telegram chat id stored, we can notify them directly. 
     // For now, this notifies the admin group or if user_chat_id is passed.
     const targetChatId = data.user_chat_id || adminChatId;
@@ -45,7 +45,7 @@ Cek status selengkapnya di aplikasi PRISMA.
     await bot.sendMessage(targetChatId, message);
 }
 
-export async function notifyNewTransaksi(data: any) {
+export async function notifyNewTransaksi(data: { jenis: string; jumlah: number; kategori: string; deskripsi: string }) {
     if (!adminChatId) return;
 
     const isPemasukan = data.jenis === 'pemasukan';

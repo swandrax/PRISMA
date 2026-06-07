@@ -57,7 +57,7 @@ export default function OnboardingRTPage() {
             } else {
                 setError(data.error || "Gagal mendaftarkan RT baru.")
             }
-        } catch (err) {
+        } catch {
             setError("Terjadi kesalahan sistem.")
         } finally {
             setLoading(false)

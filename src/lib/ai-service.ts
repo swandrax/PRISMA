@@ -4,7 +4,7 @@
  * Falls back to mock responses when backend is unavailable
  */
 
-import { sanitizeInput, sanitizeServerInput } from './security';
+import { sanitizeServerInput } from './security';
 
 // Types
 export interface SentimentResult {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, XCircle, ExternalLink, Activity } from "lucide-react"
+import { CheckCircle2, XCircle, ExternalLink } from "lucide-react"
 
 interface RTUnit {
     id: string;
@@ -35,7 +35,7 @@ export default function RTList() {
             setLoading(false)
         }
         fetchRTs()
-    }, [])
+    }, [supabase])
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         // Normally this requires super_admin permissions and an API or RPC, 
@@ -90,7 +90,7 @@ export default function RTList() {
                                                     <a 
                                                         href={`https://${rt.subdomain}.prisma-kemayoran.id`} 
                                                         target="_blank" 
-                                                        rel="noreferrer"
+                                                        rel="noopener noreferrer"
                                                         className="hover:underline flex items-center gap-1"
                                                     >
                                                         {rt.subdomain} <ExternalLink className="w-3 h-3" />

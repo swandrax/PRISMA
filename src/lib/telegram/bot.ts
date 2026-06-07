@@ -38,7 +38,7 @@ export class TelegramBot {
         }
     }
 
-    async sendMessageWithKeyboard(chatId: string | number, text: string, inlineKeyboard: any[][]) {
+    async sendMessageWithKeyboard(chatId: string | number, text: string, inlineKeyboard: Array<Array<{ text: string, url?: string, callback_data?: string }>>) {
         if (!this.token) return;
         
         try {

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         const text = body.message.text.trim();
 
         // 2. Simple Rate Limiting Check (max 10 requests per minute per chat)
-        const { data: rlData, error: rlError } = await supabase
+        const { data: rlData, error: _rlError } = await supabase
             .from('rate_limits')
             .select('*')
             .eq('chat_id', chatId)

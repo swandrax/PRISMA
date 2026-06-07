@@ -94,7 +94,7 @@ const getStorage = <T>(key: string, seed: T): T => {
             // Quick migration for RT Chairman tenure period fix: if any item has 2024-2027, update to 2024-2029
             let hasUpdate = false;
             if (key === STORAGE_KEYS.PENGURUS && Array.isArray(parsed)) {
-                parsed.forEach((p: any) => {
+                parsed.forEach((p: { periode?: string }) => {
                     if (p.periode === '2024-2027') {
                         p.periode = '2024-2029';
                         hasUpdate = true;

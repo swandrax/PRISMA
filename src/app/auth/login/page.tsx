@@ -296,6 +296,7 @@ export default function LoginPage() {
                         <Link
                             href="https://wa.me/6287872004448?text=Halo%20Admin%20PRISMA,%20saya%20butuh%20bantuan%20login%20ke%20portal%20RT%2004."
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white text-sm font-medium transition-all hover:scale-105 shadow-md"
                         >
                             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">

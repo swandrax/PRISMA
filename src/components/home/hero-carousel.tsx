@@ -14,8 +14,7 @@ import {
     TrendingUp, 
     ShieldCheck, 
     Camera, 
-    Activity,
-    Lock
+    Activity
 } from "lucide-react"
 
 const items = [

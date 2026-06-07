@@ -35,12 +35,35 @@ export const metadata: Metadata = {
     description: "Sistem Manajemen Digital RT 04/RW 09 Kemayoran. Transparansi & Pelayanan dalam genggaman.",
     url: 'https://prisma-rt-04.vercel.app',
     siteName: 'PRISMA RT 04',
+    images: [
+      {
+        url: '/images/placeholders/banner.png',
+        width: 1280,
+        height: 720,
+        alt: 'PRISMA RT 04 Banner',
+      },
+    ],
     type: 'website',
     locale: 'id_ID',
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PRISMA RT 04 Kemayoran",
+    description: "Sistem Manajemen Digital RT 04/RW 09 Kemayoran. Transparansi & Pelayanan dalam genggaman.",
+    images: ['/images/placeholders/banner.png'],
   },
   robots: {
     index: true,
     follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   manifest: "/manifest.json",
 };
@@ -104,7 +127,7 @@ export default function RootLayout({
         </a>
         <Script
           src="/sql-wasm.js"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
         />
         <script
           type="application/ld+json"
