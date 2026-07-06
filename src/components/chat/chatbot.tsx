@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area" // Keep this for scrollable areas logic if needed
 import { MessageCircle, X, Send, User, Mic, Minimize2, CircleUser } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { aiService } from "@/lib/ai-service"
 
 type Message = {
     role: "bot" | "user"
@@ -56,51 +57,37 @@ export function Chatbot() {
         setIsTyping(true)
 
         try {
-            // 2. Call Python API (Proxied/Rewritten)
-            const chatApiUrl = process.env.NEXT_PUBLIC_CHAT_API_URL || "/api/chat";
-            const res = await fetch(chatApiUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text }),
-            })
+            // 2. Call AI Service (handles backend call and localized fallback)
+            const data = await aiService.chat(text)
+            const replyText = data.response
+            const backendAction = data.action
 
-            if (res.ok) {
-                const data = await res.json()
-                const replyText = data.reply
-                const backendAction = data.action
+            let action: Message["action"] = undefined
 
-                let action: Message["action"] = undefined
-
-                if (backendAction) {
-                    if (backendAction.type === 'navigate') {
-                        action = {
-                            label: backendAction.label,
-                            onClick: () => router.push(backendAction.value)
-                        }
-                    } else if (backendAction.type === 'link') {
-                        action = {
-                            label: backendAction.label,
-                            href: backendAction.value
-                        }
+            if (backendAction) {
+                if (backendAction.type === 'navigate') {
+                    action = {
+                        label: backendAction.label,
+                        onClick: () => router.push(backendAction.value)
+                    }
+                } else if (backendAction.type === 'link') {
+                    action = {
+                        label: backendAction.label,
+                        href: backendAction.value
                     }
                 }
-
-                setMessages(prev => [...prev, {
-                    role: "bot",
-                    content: replyText,
-                    action: action
-                }])
-            } else {
-                setMessages(prev => [...prev, {
-                    role: "bot",
-                    content: "Maaf, sistem sedang sibuk. Silahkan coba lagi nanti."
-                }])
             }
+
+            setMessages(prev => [...prev, {
+                role: "bot",
+                content: replyText,
+                action: action
+            }])
 
         } catch (error) {
             setMessages(prev => [...prev, {
                 role: "bot",
-                content: "Maaf, koneksi ke Siaga terputus. Pastikan server backend aktif.",
+                content: "Maaf, koneksi ke Siaga terputus. Silakan hubungi WA pengurus RT.",
                 action: {
                     label: "Chat WA Pengurus",
                     href: "https://wa.me/6287872004448"

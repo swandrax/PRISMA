@@ -17,6 +17,11 @@ export interface ChatResponse {
     response: string;
     intent: string;
     confidence: number;
+    action?: {
+        type: 'navigate' | 'link';
+        label: string;
+        value: string;
+    };
 }
 
 export interface PredictionResult {
@@ -76,8 +81,9 @@ class AIServiceClient {
                 return {
                     user_input: message,
                     response: data.reply || 'Tidak ada respons.',
-                    intent: 'ai_response',
-                    confidence: 0.95
+                    intent: data.intent || 'ai_response',
+                    confidence: 0.95,
+                    action: data.action
                 };
             }
         } catch {
@@ -92,30 +98,61 @@ class AIServiceClient {
         const lowerMessage = message.toLowerCase();
         let response = 'Silakan cari template surat yang Anda butuhkan di daftar template di atas. Gunakan fitur pencarian untuk menemukan surat yang sesuai.';
         let intent = 'general';
+        let action: ChatResponse['action'] = undefined;
 
-        for (const [key, value] of Object.entries(SURAT_RESPONSES)) {
-            if (lowerMessage.includes(key)) {
-                response = value;
-                intent = `surat_${key}`;
-                break;
+        if (lowerMessage.includes('iuran') || lowerMessage.includes('kas') || lowerMessage.includes('keuangan') || lowerMessage.includes('biaya') || lowerMessage.includes('bayar')) {
+            response = 'Anda dapat melihat rincian iuran bulanan warga, melakukan pembayaran, serta laporan keuangan kas RT 04 secara transparan di menu Keuangan.';
+            intent = 'keuangan';
+            action = { type: 'navigate', label: 'Cek Kas & Iuran', value: '/keuangan/iuran' };
+        } else if (lowerMessage.includes('lapor') || lowerMessage.includes('lampu') || lowerMessage.includes('sampah') || lowerMessage.includes('keamanan') || lowerMessage.includes('insiden') || lowerMessage.includes('maling')) {
+            response = 'Untuk melaporkan masalah keamanan, kebersihan (seperti sampah), lampu jalan padam, atau insiden lainnya di lingkungan RT 04, silakan isi Form Laporan Keamanan & Insiden.';
+            intent = 'laporan_insiden';
+            action = { type: 'navigate', label: 'Laporkan Insiden', value: '/surat/keamanan' };
+        } else if (lowerMessage.includes('hubungi') || lowerMessage.includes('rt') || lowerMessage.includes('kontak') || lowerMessage.includes('wa') || lowerMessage.includes('whatsapp') || lowerMessage.includes('telepon')) {
+            response = 'Anda dapat menghubungi Ketua RT 04 Bp. Rerry Adusundaru secara langsung melalui WhatsApp untuk keperluan mendesak.';
+            intent = 'hubungi_rt';
+            action = { type: 'link', label: 'Hubungi via WhatsApp', value: 'https://wa.me/6287872004448' };
+        } else {
+            // Check for specific letter types
+            for (const [key, value] of Object.entries(SURAT_RESPONSES)) {
+                if (lowerMessage.includes(key)) {
+                    response = value;
+                    intent = `surat_${key}`;
+                    action = { type: 'navigate', label: 'Buat Surat', value: '/surat' };
+                    break;
+                }
+            }
+
+            if (intent === 'general' && (lowerMessage.includes('surat') || lowerMessage.includes('administrasi') || lowerMessage.includes('pengantar'))) {
+                response = 'PRISMA menyediakan layanan administrasi surat pengantar digital secara mandiri, seperti Surat Pengantar Domisili, SKTM, Pengantar Pindah, dll.';
+                intent = 'administrasi';
+                action = { type: 'navigate', label: 'Layanan Surat', value: '/surat' };
             }
         }
 
         if (lowerMessage.includes('cara') || lowerMessage.includes('bagaimana')) {
-            response = 'Untuk menggunakan template surat:\n1. Download template dalam format .docx atau .pdf\n2. Isi field yang diperlukan\n3. Cetak dan serahkan ke sekretariat RT\n4. Ambil surat yang sudah jadi dalam 1-2 hari kerja';
-            intent = 'how_to';
+            if (intent === 'general') {
+                response = 'Untuk menggunakan template surat:\n1. Buka menu Layanan Surat\n2. Pilih jenis surat (contoh: Domisili, SKTM)\n3. Isi formulir yang disediakan\n4. Cetak PDF atau kirim pengajuan ke pengurus RT.';
+                intent = 'how_to';
+                if (!action) {
+                    action = { type: 'navigate', label: 'Buka Layanan Surat', value: '/surat' };
+                }
+            }
         }
 
-        if (lowerMessage.includes('bantuan') || lowerMessage.includes('help')) {
-            response = 'Saya bisa membantu Anda mencari template surat yang tepat. Ceritakan kebutuhan Anda, misalnya: "saya butuh surat domisili" atau "cara buat SKTM".';
-            intent = 'help';
+        if (lowerMessage.includes('bantuan') || lowerMessage.includes('help') || lowerMessage.includes('fitur') || lowerMessage.includes('menu')) {
+            if (intent === 'general') {
+                response = 'Saya bisa membantu Anda mencari template surat, cek laporan keuangan, lapor insiden keamanan/kebersihan, atau menghubungi pengurus RT. Silakan ketik apa yang Anda butuhkan!';
+                intent = 'help';
+            }
         }
 
         return {
             user_input: message,
             response,
             intent,
-            confidence: 0.7
+            confidence: 0.7,
+            action
         };
     }
 
