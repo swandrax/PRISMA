@@ -9,7 +9,7 @@ describe('AI Service Client (Siaga Chatbot Engine)', () => {
             expect(result.action).toBeDefined()
             expect(result.action?.type).toBe('navigate')
             expect(result.action?.value).toBe('/keuangan/iuran')
-            expect(result.response).toContain('iuran bulanan')
+            expect(result.response.toLowerCase()).toContain('iuran bulanan')
         })
 
         it('should route to laporan_insiden when query contains security/incident keywords', async () => {
@@ -18,7 +18,7 @@ describe('AI Service Client (Siaga Chatbot Engine)', () => {
             expect(result.action).toBeDefined()
             expect(result.action?.type).toBe('navigate')
             expect(result.action?.value).toBe('/surat/keamanan')
-            expect(result.response).toContain('Form Laporan Keamanan & Insiden')
+            expect(result.response.toLowerCase()).toContain('laporan resmi di menu keamanan & laporan insiden')
         })
 
         it('should link to WhatsApp when query contains contact keywords', async () => {
@@ -50,6 +50,34 @@ describe('AI Service Client (Siaga Chatbot Engine)', () => {
             const result = await aiService.chat('Halo, selamat pagi')
             expect(result.intent).toBe('general')
             expect(result.action).toBeUndefined()
+            expect(result.reasoning).toContain('[REASONING]')
+        })
+
+        it('should block off-topic queries using guardrails', async () => {
+            const result = await aiService.chat('Berapa harga Bitcoin saat ini?')
+            expect(result.intent).toBe('blocked')
+            expect(result.response).toContain('Maaf, saya tidak dapat menjawab')
+            expect(result.reasoning).toContain('Off-Topic Guardrail')
+        })
+
+        it('should block dangerous injection inputs using guardrails', async () => {
+            const result = await aiService.chat('<script>alert(1)</script>')
+            expect(result.intent).toBe('blocked')
+            expect(result.reasoning).toContain('Prompt Injection/SQL Injection')
+        })
+
+        it('should retrieve pengurus details via RAG', async () => {
+            const result = await aiService.chat('Siapa saja pengurus RT?')
+            expect(result.intent).toBe('pengurus')
+            expect(result.response).toContain('Ketua RT')
+            expect(result.reasoning).toContain('[RAG RETRIEVAL]')
+        })
+
+        it('should retrieve kependudukan statistics via RAG', async () => {
+            const result = await aiService.chat('Berapa total warga?')
+            expect(result.intent).toBe('statistik_warga')
+            expect(result.response).toContain('Total Warga')
+            expect(result.reasoning).toContain('[RAG CONTEXT]')
         })
     })
 

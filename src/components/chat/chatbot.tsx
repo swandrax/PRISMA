@@ -17,6 +17,7 @@ type Message = {
         href?: string
         onClick?: () => void
     }
+    reasoning?: string
 }
 
 const CHIP_OPTIONS = [
@@ -81,7 +82,8 @@ export function Chatbot() {
             setMessages(prev => [...prev, {
                 role: "bot",
                 content: replyText,
-                action: action
+                action: action,
+                reasoning: data.reasoning
             }])
 
         } catch (error) {
@@ -136,7 +138,17 @@ export function Chatbot() {
                                         : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-bl-none'
                                     }
                                 `}>
-                                    {m.content}
+                                    <div>{m.content}</div>
+                                    {m.reasoning && (
+                                        <details className="mt-2 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700 pt-2 cursor-pointer focus:outline-none">
+                                            <summary className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 select-none">
+                                                Proses Berpikir Asisten AI
+                                            </summary>
+                                            <pre className="mt-1.5 p-2 bg-slate-50 dark:bg-slate-900 rounded text-[10px] font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto text-slate-600 dark:text-slate-400 max-h-[120px]">
+                                                {m.reasoning}
+                                            </pre>
+                                        </details>
+                                    )}
                                 </div>
                                 {m.action && (
                                     <div className="mt-2">
