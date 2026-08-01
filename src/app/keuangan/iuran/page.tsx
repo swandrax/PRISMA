@@ -31,7 +31,7 @@ interface WargaIuran {
 // Mock data - in production, fetch from API
 const mockWargaIuran: WargaIuran[] = [
     { id: 1, nama: "Ahmad Suryanto", alamat: "Gg. Bugis No.95", lastPayment: "2026-01-15", status: "paid", monthsPaid: 7 },
-    { id: 2, nama: "Budi Santoso", alamat: "Gg. Bugis No.96", lastPayment: "2025-12-20", status: "pending", monthsPaid: 6 },
+    { id: 2, nama: "Erry Adu Sundaru", alamat: "Gg. Bugis No.96", lastPayment: "2025-12-20", status: "pending", monthsPaid: 6 },
     { id: 3, nama: "Citra Dewi", alamat: "Gg. Bugis No.97", lastPayment: "2026-01-10", status: "paid", monthsPaid: 7 },
     { id: 4, nama: "Dedy Kurniawan", alamat: "Gg. Bugis No.98", lastPayment: "2025-11-15", status: "overdue", monthsPaid: 5 },
     { id: 5, nama: "Endang Susanti", alamat: "Gg. Bugis No.99", lastPayment: "2026-01-12", status: "paid", monthsPaid: 7 },

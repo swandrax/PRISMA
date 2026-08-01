@@ -114,7 +114,7 @@ export default function RegisterPage() {
                         <p className="text-base italic opacity-90">
                             &ldquo;Platform ini sangat membantu saya dalam mengurus surat-surat administrasi tanpa harus bolak-balik ke rumah Pak RT.&rdquo;
                         </p>
-                        <footer className="text-sm opacity-70 mt-2">— Bapak Budi Santoso (Warga RT 04)</footer>
+                        <footer className="text-sm opacity-70 mt-2">— Bapak Erry Adu Sundaru (Warga RT 04)</footer>
                     </blockquote>
                 </div>
             </div>
