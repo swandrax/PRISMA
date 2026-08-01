@@ -93,7 +93,9 @@ prompt/
 docs/
 keys/
 
-# Internal prompt/documentation files (not for GitHub)
+# Internal prompt/documentation/step-by-step files (not for GitHub)
+*.md
+*.MD
 PRISMA_PROJECT_PROMPT.md
 DEPLOY_CLOUDFLARE.md
 TESTING_REPORT.md
