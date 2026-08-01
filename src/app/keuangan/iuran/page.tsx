@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,6 @@ import {
     AlertCircle,
     Users,
     TrendingUp,
-    Calendar,
     Search,
     Download,
     ChevronRight
@@ -43,7 +42,7 @@ const mockWargaIuran: WargaIuran[] = [
 export default function IuranPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
-    const [wargaData, setWargaData] = useState<WargaIuran[]>(mockWargaIuran);
+    const [wargaData] = useState<WargaIuran[]>(mockWargaIuran);
 
     const currentMonth = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
