@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input"
 import { X, Send, Mic, Minimize2, CircleUser } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { aiService } from "@/lib/ai-service"
 
 type Message = {
     role: "bot" | "user"
@@ -15,6 +16,7 @@ type Message = {
         href?: string
         onClick?: () => void
     }
+    reasoning?: string
 }
 
 const CHIP_OPTIONS = [
@@ -55,54 +57,38 @@ export function Chatbot() {
         setIsTyping(true)
 
         try {
-            // 2. Call API (Proxied/Rewritten or direct Gateway)
-            const chatApiUrl = process.env.NEXT_PUBLIC_CHAT_API_URL || 
-                (typeof window !== "undefined"
-                    ? `${process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:4000/api/v1"}/ai/chat`
-                    : "/api/chat");
-            const res = await fetch(chatApiUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text }),
-            })
+            // 2. Call AI Service (handles backend call and localized fallback)
+            const data = await aiService.chat(text)
+            const replyText = data.response
+            const backendAction = data.action
 
-            if (res.ok) {
-                const data = await res.json()
-                const replyText = data.reply
-                const backendAction = data.action
+            let action: Message["action"] = undefined
 
-                let action: Message["action"] = undefined
-
-                if (backendAction) {
-                    if (backendAction.type === 'navigate') {
-                        action = {
-                            label: backendAction.label,
-                            onClick: () => router.push(backendAction.value)
-                        }
-                    } else if (backendAction.type === 'link') {
-                        action = {
-                            label: backendAction.label,
-                            href: backendAction.value
-                        }
+            if (backendAction) {
+                if (backendAction.type === 'navigate') {
+                    action = {
+                        label: backendAction.label,
+                        onClick: () => router.push(backendAction.value)
+                    }
+                } else if (backendAction.type === 'link') {
+                    action = {
+                        label: backendAction.label,
+                        href: backendAction.value
                     }
                 }
-
-                setMessages(prev => [...prev, {
-                    role: "bot",
-                    content: replyText,
-                    action: action
-                }])
-            } else {
-                setMessages(prev => [...prev, {
-                    role: "bot",
-                    content: "Maaf, sistem sedang sibuk. Silahkan coba lagi nanti."
-                }])
             }
+
+            setMessages(prev => [...prev, {
+                role: "bot",
+                content: replyText,
+                action: action,
+                reasoning: data.reasoning
+            }])
 
         } catch {
             setMessages(prev => [...prev, {
                 role: "bot",
-                content: "Maaf, koneksi ke Siaga terputus. Pastikan server backend aktif.",
+                content: "Maaf, koneksi ke Siaga terputus. Silakan hubungi WA pengurus RT.",
                 action: {
                     label: "Chat WA Pengurus",
                     href: "https://wa.me/6287872004448"
@@ -151,7 +137,17 @@ export function Chatbot() {
                                         : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700 rounded-bl-none'
                                     }
                                 `}>
-                                    {m.content}
+                                    <div>{m.content}</div>
+                                    {m.reasoning && (
+                                        <details className="mt-2 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700 pt-2 cursor-pointer focus:outline-none">
+                                            <summary className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 select-none">
+                                                Proses Berpikir Asisten AI
+                                            </summary>
+                                            <pre className="mt-1.5 p-2 bg-slate-50 dark:bg-slate-900 rounded text-[10px] font-mono leading-relaxed whitespace-pre-wrap overflow-x-auto text-slate-600 dark:text-slate-400 max-h-[120px]">
+                                                {m.reasoning}
+                                            </pre>
+                                        </details>
+                                    )}
                                 </div>
                                 {m.action && (
                                     <div className="mt-2">
