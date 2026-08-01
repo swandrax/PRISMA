@@ -56,12 +56,12 @@ const officials: OfficialMember[] = [
         accent: "ring-amber-500/30",
     },
     {
-        name: "Bpk. Dika",
+        name: "Bpk. Swandaru Tirta",
         role: "Programmer & Technical Engineer",
         roleId: "rnd",
         icon: Lightbulb,
         phone: "6287782380077",
-        description: "Bertanggung jawab atas riset, inovasi, pengembangan program lingkungan, serta penanganan CCTV.",
+        description: "Bertanggung jawab atas riset, inovasi, teknis sistem digital, serta pengawasan kehandalan CCTV RT 04.",
         gradient: "from-purple-600 to-fuchsia-700",
         accent: "ring-purple-500/30",
     },
@@ -149,17 +149,23 @@ export function OrganizationalStructure() {
                                                 {official.description}
                                             </p>
 
-                                            {/* WhatsApp CTA */}
+                                            {/* WhatsApp CTA - Kontak hanya untuk Bapak RT 04 & Bpk. Swandaru Tirta */}
                                             <div className="mt-4 pt-4 border-t border-dashed border-border/50">
-                                                <Button
-                                                    size="sm"
-                                                    className="w-full bg-green-500 hover:bg-green-600 text-white gap-2 group/btn transition-all duration-200 active:scale-95"
-                                                    onClick={() => openWhatsApp(official.phone, official.role)}
-                                                >
-                                                    <Phone className="h-4 w-4" />
-                                                    <span>Hubungi via WhatsApp</span>
-                                                    <ChevronRight className="h-3 w-3 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-all" />
-                                                </Button>
+                                                {official.phone ? (
+                                                    <Button
+                                                        size="sm"
+                                                        className="w-full bg-green-500 hover:bg-green-600 text-white gap-2 group/btn transition-all duration-200 active:scale-95"
+                                                        onClick={() => openWhatsApp(official.phone, official.role)}
+                                                    >
+                                                        <Phone className="h-4 w-4" />
+                                                        <span>Hubungi via WhatsApp</span>
+                                                        <ChevronRight className="h-3 w-3 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-0.5 transition-all" />
+                                                    </Button>
+                                                ) : (
+                                                    <div className="text-xs text-center text-muted-foreground py-2 italic bg-muted/40 rounded-md border border-border/40">
+                                                        Melalui Pos Sekretariat RT
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </CardContent>

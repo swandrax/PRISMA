@@ -140,7 +140,7 @@ export function Footer() {
                         &copy; {currentYear} PRISMA RT 04 Kemayoran.
                         <span className="hidden sm:inline">Dibuat</span>
                         <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500 hidden sm:outline" />
-                        <span className="hidden sm:inline">oleh Bang Dika</span>
+                        <span className="hidden sm:inline">oleh Bang Swandaru Tirta</span>
                     </p>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
                         <Link href="/#about" className="hover:text-primary transition-colors">

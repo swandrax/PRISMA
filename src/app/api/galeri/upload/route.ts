@@ -3,21 +3,34 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { slugify } from '@/lib/utils/slugify'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+export const dynamic = 'force-dynamic';
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-        autoRefreshToken: false,
-        persistSession: false
+function getSupabaseServerClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+        return null
     }
-})
+
+    return createClient(supabaseUrl, supabaseServiceKey, {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    })
+}
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_SIZE = 5 * 1024 * 1024 // 5MB
 
 export async function POST(request: Request) {
     try {
+        const supabase = getSupabaseServerClient()
+        if (!supabase) {
+            return NextResponse.json({ error: 'Supabase credentials not configured' }, { status: 500 })
+        }
+
         const formData = await request.formData()
         const file = formData.get('file') as File | null
         const judul = formData.get('judul') as string

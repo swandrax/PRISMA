@@ -44,25 +44,57 @@
   --primary: #f43f5e; /* Rose-500: beautiful premium soft red highlight */
   --primary-foreground: #ffffff;
 
-  --secondary: #1e0b0e; /* Deep burgundy-black */
+  --secondary: #2a0e14; /* Deep burgundy-black */
   --secondary-foreground: #fcd5d9;
 
   --muted: #18080a; /* Muted reddish-black */
-  --muted-foreground: #b48d94; /* Warm rose-gray text */
+  --muted-foreground: #d4a8b0; /* High-contrast warm rose-gray text */
 
   --accent: #2c0f14; /* Highlight accent block */
   --accent-foreground: #fda4af; /* Rose-300 */
 
-  --card: #120608; /* Premium reddish-black card */
+  --card: #14070a; /* Premium reddish-black card */
   --card-foreground: #f1e5e6;
 
-  --border: #2e1318; /* Subtle reddish-black border */
-  --input: #1a0a0d;
+  --border: #4a1c24; /* Higher-contrast border */
+  --input: #3b171f; /* Clear input field styling */
   --ring: #f43f5e;
 
   /* Custom gradient text colors for dark mode */
   --gradient-text: #fcf8f8;
   --gradient-text-muted: #cbd5e1;
+}
+
+/* ================================
+   UNIVERSAL PLACEHOLDER & BUTTON VISIBILITY
+   ================================ */
+
+/* Input contrast enhancement */
+input, textarea, select {
+  border-color: var(--input);
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+.dark input, .dark textarea, .dark select {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* Universal High-Contrast Input Placeholders */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 0.85 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark select::placeholder {
+  color: #cbd5e1 !important; /* Clear light slate-gray in dark mode for crisp legibility */
+  opacity: 0.9 !important;
 }
 
 @theme inline {

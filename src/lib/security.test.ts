@@ -423,7 +423,7 @@ import { validateEmailFormat } from './security'
 describe('validateEmailFormat - Personal Email Validation', () => {
     it('should allow valid personal email addresses', () => {
         expect(validateEmailFormat('warga.rt04@gmail.com')).toBe(true)
-        expect(validateEmailFormat('dika.pratama@yahoo.co.id')).toBe(true)
+        expect(validateEmailFormat('swandaru.tirta@yahoo.co.id')).toBe(true)
         expect(validateEmailFormat('rt04.kemayoran@outlook.com')).toBe(true)
         expect(validateEmailFormat('user.name+label@gmail.com')).toBe(true)
     })

@@ -30,16 +30,11 @@ describe('Demo Credentials System', () => {
             expect(user?.role).toBe('warga')
         })
 
-        it('should authenticate pengurus (sekretaris) credentials', async () => {
-            const user = await authenticateDemo('sekretaris@prisma.dev', 'S3kr3t4r1s!')
+        it('should authenticate pengurus (Swandaru Tirta) credentials', async () => {
+            const user = await authenticateDemo('swandaru@prisma.dev', 'S3kr3t4r1s!')
             expect(user).not.toBeNull()
             expect(user?.role).toBe('pengurus')
-        })
-
-        it('should authenticate pengurus (bendahara) credentials', async () => {
-            const user = await authenticateDemo('bendahara@prisma.dev', 'B3nd4h4r4!')
-            expect(user).not.toBeNull()
-            expect(user?.role).toBe('pengurus')
+            expect(user?.nama).toBe('Swandaru Tirta')
         })
 
         it('should authenticate guest/tamu credentials', async () => {
@@ -107,10 +102,10 @@ describe('Demo Credentials System', () => {
             expect(user?.role).toBe('admin')
         })
 
-        it('should find bendahara by email', () => {
-            const user = getDemoUserByEmail('bendahara@prisma.dev')
+        it('should find swandaru by email', () => {
+            const user = getDemoUserByEmail('swandaru@prisma.dev')
             expect(user).not.toBeNull()
-            expect(user?.nama).toBe('Bendahara RT 04')
+            expect(user?.nama).toBe('Swandaru Tirta')
         })
 
         it('should return null for non-existent email', () => {
@@ -144,10 +139,10 @@ describe('Demo Credentials System', () => {
             expect(hasPermission(admin, 'nonexistent_permission')).toBe(false)
         })
 
-        it('should return true for bendahara with finance permission', () => {
-            const bendahara = getDemoUserByEmail('bendahara@prisma.dev')!
-            expect(hasPermission(bendahara, 'manage_finance')).toBe(true)
-            expect(hasPermission(bendahara, 'view_reports')).toBe(true)
+        it('should return true for swandaru with pengurus permissions', () => {
+            const pengurus = getDemoUserByEmail('swandaru@prisma.dev')!
+            expect(hasPermission(pengurus, 'manage_surat')).toBe(true)
+            expect(hasPermission(pengurus, 'view_reports')).toBe(true)
         })
 
         it('should return false for warga with admin permissions', () => {

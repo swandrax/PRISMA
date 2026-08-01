@@ -131,7 +131,7 @@ export default function VerifyEmailPage() {
                     <tr>
                         <td style="padding: 40px 40px 30px 40px;">
                             <p style="font-size: 16px; line-height: 24px; font-weight: 600; color: #0f172a; margin-top: 0; margin-bottom: 8px;">
-                                Halo, Tetangga Dika!
+                                Halo, Tetangga Swandaru Tirta!
                             </p>
                             <p style="font-size: 15px; line-height: 24px; color: #475569; margin-top: 0; margin-bottom: 24px;">
                                 Terima kasih telah melakukan registrasi pada Portal Digital PRISMA RT 04. Gunakan kode verifikasi di bawah ini untuk mengonfirmasi alamat email Anda dan mengaktifkan akses warga Anda:
@@ -372,7 +372,7 @@ export default function VerifyEmailPage() {
                                     {/* Email Content Body */}
                                     <div className="p-6 text-xs space-y-4">
                                         <p className="font-bold text-slate-900 dark:text-white text-sm">
-                                            Halo, Tetangga Dika!
+                                            Halo, Tetangga Swandaru Tirta!
                                         </p>
                                         <p className="text-muted-foreground leading-relaxed">
                                             Terima kasih telah melakukan registrasi pada Portal Digital PRISMA RT 04. Gunakan kode verifikasi di bawah ini untuk mengonfirmasi alamat email Anda dan mengaktifkan akses warga Anda:

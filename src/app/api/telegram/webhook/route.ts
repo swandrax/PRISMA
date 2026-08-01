@@ -3,14 +3,27 @@ import { NextResponse } from 'next/server';
 import { bot } from '@/lib/telegram/bot';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+export const dynamic = 'force-dynamic';
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+function getSupabaseServiceClient() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+        return null;
+    }
+
+    return createClient(supabaseUrl, supabaseServiceKey);
+}
 
 const WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET;
 
 export async function POST(request: Request) {
+    const supabase = getSupabaseServiceClient();
+    if (!supabase) {
+        return NextResponse.json({ error: 'Supabase credentials not configured' }, { status: 500 });
+    }
+
     // 1. Verify Secret Token
     const secretToken = request.headers.get('x-telegram-bot-api-secret-token');
     if (WEBHOOK_SECRET && secretToken !== WEBHOOK_SECRET) {

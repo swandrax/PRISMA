@@ -1,5 +1,5 @@
 // KeuanganRepository — Data access for Keuangan domain
-// Delegates to MockDB (local JSON data)
+// Refactored with Redis caching and DataLoader N+1 query optimization for latency stabilization
 
 import { BaseRepository, QueryResult } from './BaseRepository';
 import {
@@ -8,6 +8,9 @@ import {
   type BalanceInfo,
   computeBalance,
 } from '../entities/Keuangan';
+import { cache } from '@/lib/cache/redis-cache';
+import { DataLoader } from '@/lib/cache/data-loader';
+import { trackCacheAccess, trackBatchExecution } from '@/lib/performance';
 
 const getMockDB = async () => {
   if (typeof window === 'undefined') return null;
@@ -16,14 +19,34 @@ const getMockDB = async () => {
 };
 
 export class KeuanganRepository extends BaseRepository<MonthlyReportEntity, string> {
+  private dataLoader: DataLoader<string, MonthlyReportEntity>;
+
+  constructor() {
+    super();
+    this.cachePrefix = 'keuangan';
+    this.defaultTtlSeconds = 60; // 60 seconds TTL for dynamic financial summaries
+    this.dataLoader = new DataLoader<string, MonthlyReportEntity>(
+      async (ids) => this.batchFetchByPeriods(ids),
+      50
+    );
+  }
+
   async getAll(): Promise<MonthlyReportEntity[]> {
+    const cacheKey = `${this.cachePrefix}:all`;
+    const cached = await cache.get<MonthlyReportEntity[]>(cacheKey);
+    if (cached) {
+      trackCacheAccess(true);
+      return cached;
+    }
+    trackCacheAccess(false);
+
     const MockDB = await getMockDB();
     if (!MockDB) return [];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const reports = MockDB.getFinanceReports() as any[];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return reports.map((r: any) => ({
+    const entities: MonthlyReportEntity[] = reports.map((r: any) => ({
       bulan: r.bulan as string,
       tahun: r.tahun as number,
       saldoAwal: (r.saldo_awal ?? r.saldoAwal ?? 0) as number,
@@ -39,22 +62,47 @@ export class KeuanganRepository extends BaseRepository<MonthlyReportEntity, stri
         jumlah: (t.jumlah as number) ?? 0,
       })),
     }));
+
+    await cache.set(cacheKey, entities, this.defaultTtlSeconds);
+    return entities;
   }
 
   async getById(id: string): Promise<MonthlyReportEntity | null> {
     // id = "bulan-tahun" format, e.g., "Januari-2026"
-    const [bulan, tahunStr] = id.split('-');
-    return this.getByPeriod(bulan, parseInt(tahunStr, 10));
+    const cacheKey = `${this.cachePrefix}:report:${id}`;
+    const cached = await cache.get<MonthlyReportEntity>(cacheKey);
+    if (cached) {
+      trackCacheAccess(true);
+      return cached;
+    }
+    trackCacheAccess(false);
+
+    const report = await this.dataLoader.load(id);
+    if (report) {
+      await cache.set(cacheKey, report, this.defaultTtlSeconds);
+    }
+    return report;
   }
 
   async getByPeriod(bulan: string, tahun: number): Promise<MonthlyReportEntity | null> {
+    return this.getById(`${bulan}-${tahun}`);
+  }
+
+  /**
+   * Batch resolver called by DataLoader to eliminate N+1 queries when loading multiple monthly periods.
+   */
+  private async batchFetchByPeriods(ids: readonly string[]): Promise<Array<MonthlyReportEntity | null>> {
+    trackBatchExecution(ids.length);
     const reports = await this.getAll();
-    return reports.find(r => r.bulan === bulan && r.tahun === tahun) ?? null;
+    const map = new Map<string, MonthlyReportEntity>();
+    for (const r of reports) {
+      map.set(`${r.bulan}-${r.tahun}`, r);
+    }
+    return ids.map(id => map.get(id) ?? null);
   }
 
   async create(_entity: Partial<MonthlyReportEntity>): Promise<QueryResult<MonthlyReportEntity>> {
     void _entity;
-    // Read-only data source for now
     return { success: false, error: 'Keuangan data is read-only in local mode' };
   }
 
@@ -70,18 +118,36 @@ export class KeuanganRepository extends BaseRepository<MonthlyReportEntity, stri
   }
 
   async getBalance(): Promise<BalanceInfo> {
+    const cacheKey = `${this.cachePrefix}:balance`;
+    const cached = await cache.get<BalanceInfo>(cacheKey);
+    if (cached) {
+      trackCacheAccess(true);
+      return cached;
+    }
+    trackCacheAccess(false);
+
     const reports = await this.getAll();
-    return computeBalance(reports);
+    const balance = computeBalance(reports);
+    await cache.set(cacheKey, balance, this.defaultTtlSeconds);
+    return balance;
   }
 
   async getExpenseSummary(): Promise<ExpenseSummaryEntity> {
+    const cacheKey = `${this.cachePrefix}:summary`;
+    const cached = await cache.get<ExpenseSummaryEntity>(cacheKey);
+    if (cached) {
+      trackCacheAccess(true);
+      return cached;
+    }
+    trackCacheAccess(false);
+
     const MockDB = await getMockDB();
     if (!MockDB) {
       return { avgMonthlyExpense: 0, categories: [] };
     }
 
     const summary = MockDB.getFinanceSummary();
-    return {
+    const entity: ExpenseSummaryEntity = {
       avgMonthlyExpense: summary.avgMonthlyExpense ?? 0,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       categories: ((summary.categories ?? []) as any[]).map((c: any) => ({
@@ -92,6 +158,9 @@ export class KeuanganRepository extends BaseRepository<MonthlyReportEntity, stri
         kategoriNormalized: c.kategori_normalized as string | undefined,
       })),
     };
+
+    await cache.set(cacheKey, entity, this.defaultTtlSeconds);
+    return entity;
   }
 }
 

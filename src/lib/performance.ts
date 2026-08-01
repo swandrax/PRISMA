@@ -155,3 +155,48 @@ export function initPerformanceMonitoring() {
         // PerformanceObserver not supported
     }
 }
+
+// Cache & DataLoader Telemetry Monitoring
+interface CacheTelemetry {
+    hits: number;
+    misses: number;
+    totalBatchRequests: number;
+    itemsProcessedInBatches: number;
+    queriesSaved: number;
+}
+
+const cacheTelemetry: CacheTelemetry = {
+    hits: 0,
+    misses: 0,
+    totalBatchRequests: 0,
+    itemsProcessedInBatches: 0,
+    queriesSaved: 0,
+};
+
+export function trackCacheAccess(hit: boolean) {
+    if (hit) cacheTelemetry.hits++;
+    else cacheTelemetry.misses++;
+}
+
+export function trackBatchExecution(itemsInBatch: number) {
+    cacheTelemetry.totalBatchRequests++;
+    cacheTelemetry.itemsProcessedInBatches += itemsInBatch;
+    if (itemsInBatch > 1) {
+        // N items retrieved in 1 query = N - 1 sequential queries eliminated (N+1 optimization)
+        cacheTelemetry.queriesSaved += (itemsInBatch - 1);
+    }
+}
+
+export function getCacheTelemetryReport() {
+    const total = cacheTelemetry.hits + cacheTelemetry.misses;
+    const hitRate = total > 0 ? ((cacheTelemetry.hits / total) * 100).toFixed(1) + '%' : '0.0%';
+    return {
+        totalAccesses: total,
+        hitRate,
+        queriesSaved: cacheTelemetry.queriesSaved,
+        avgBatchSize: cacheTelemetry.totalBatchRequests > 0 
+            ? Math.round(cacheTelemetry.itemsProcessedInBatches / cacheTelemetry.totalBatchRequests)
+            : 0
+    };
+}
+

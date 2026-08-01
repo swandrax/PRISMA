@@ -22,6 +22,9 @@ export interface PaginatedResult<T> {
  * @template ID - Primary key type (default: number)
  */
 export abstract class BaseRepository<T, ID = number> {
+  protected cachePrefix: string = 'entity';
+  protected defaultTtlSeconds: number = 300; // 5 minutes standard TTL
+
   /**
    * Get all entities
    */
@@ -31,6 +34,20 @@ export abstract class BaseRepository<T, ID = number> {
    * Get entity by ID
    */
   abstract getById(id: ID): Promise<T | null>;
+
+  /**
+   * Get multiple entities by IDs simultaneously (Batching / DataLoader N+1 optimization)
+   * Subclasses should override this with a native vectorized WHERE ID IN (...) query.
+   */
+  async getByIds(ids: ID[]): Promise<T[]> {
+    const results: T[] = [];
+    const uniqueIds = Array.from(new Set(ids));
+    for (const id of uniqueIds) {
+      const item = await this.getById(id);
+      if (item !== null) results.push(item);
+    }
+    return results;
+  }
 
   /**
    * Create a new entity

@@ -46,36 +46,19 @@ const PRIVATE_USERS: DemoUser[] = [
     },
     {
         id: 2,
-        email: "sekretaris@prisma.dev",
+        email: "swandaru@prisma.dev",
         passwordHash: "$2b$12$4ZDjgvOcPq19XIvuSHTo.ebSUVpOOqGMzEahnqYQco5We2wijnW4O",
-        nama: "Sekretaris RT 04",
+        nama: "Swandaru Tirta",
         role: "pengurus",
-        no_telepon: "6281234567891",
-        tanggal_lahir: "1990-06-20",
-        alamat: "Gg. Bugis, RT 04/RW 09, Kemayoran",
+        no_telepon: "6287782380077",
+        tanggal_lahir: "1992-08-10",
+        alamat: "Gg. Bugis No.42, RT 04/RW 09, Kemayoran",
         blok: "A",
         no_rumah: "42",
         status: "Aktif",
         foto_path: null,
         permissions: [
-            "manage_surat", "view_reports", "manage_users"
-        ]
-    },
-    {
-        id: 3,
-        email: "bendahara@prisma.dev",
-        passwordHash: "$2b$12$lIFCgo5woTE2YNg2Cm9l2..9Oj8VkKZpfshLIJ4MeeEjn.7ocGvpK",
-        nama: "Bendahara RT 04",
-        role: "pengurus",
-        no_telepon: "6281234567892",
-        tanggal_lahir: "1988-11-10",
-        alamat: "Gg. Bugis, RT 04/RW 09, Kemayoran",
-        blok: "B",
-        no_rumah: "17",
-        status: "Aktif",
-        foto_path: null,
-        permissions: [
-            "manage_finance", "view_reports"
+            "manage_surat", "view_reports", "manage_users", "manage_infrastructure", "manage_files"
         ]
     },
     {
