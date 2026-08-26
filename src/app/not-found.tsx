@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Search, ArrowLeft, FileQuestion, HelpCircle, Mail } from "lucide-react"
+import { Home, Search, FileQuestion, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
@@ -76,8 +76,8 @@ export default function NotFound() {
                         <div>
                             <p className="text-amber-700 dark:text-amber-300 font-medium">Butuh bantuan?</p>
                             <p className="text-amber-600/80 dark:text-amber-400/80 text-xs mt-1">
-                                Hubungi Sekretariat RT 04 di{" "}
-                                <a href="tel:+6287872004448" className="underline">0878-7200-4448</a>
+                                Hubungi Admin & IT RT 04 (Swandaru Tirta) di{" "}
+                                <a href="https://wa.me/6287782380077" target="_blank" rel="noopener noreferrer" className="underline font-medium">0877-8238-0077</a>
                             </p>
                         </div>
                     </div>

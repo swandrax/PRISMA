@@ -6,7 +6,7 @@ import { MessageCircle, Phone, Send, X, Share2, CalendarClock } from 'lucide-rea
 import { useClickOutside } from '@/hooks/use-click-outside'
 import { secureStorage, getCredentials } from '@/lib/security'
 
-const RT_PHONE_NUMBER = '6287872004448'
+const RT_PHONE_NUMBER = '6287782380077'
 
 interface WargaProfile {
     nama: string
@@ -118,8 +118,8 @@ export function WhatsAppDirect() {
                     >
                         <MessageCircle className="h-5 w-5" />
                         <div className="text-left">
-                            <div className="font-medium">Hubungi Pengurus RT</div>
-                            <div className="text-xs opacity-80">+62 878-7200-4448</div>
+                            <div className="font-medium">Swandaru Tirta</div>
+                            <div className="text-xs opacity-80">+62 877-8238-0077 (IT & Admin)</div>
                         </div>
                     </Button>
 
