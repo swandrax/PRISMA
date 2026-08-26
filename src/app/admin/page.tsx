@@ -20,7 +20,8 @@ import {
     Download,
     Plus,
     Eye,
-    Megaphone
+    Megaphone,
+    Activity
 } from "lucide-react"
 
 interface DashboardStats {
@@ -123,6 +124,14 @@ const adminMenus: MenuCard[] = [
         icon: Megaphone,
         href: '/admin/marketing',
         color: 'from-pink-600 to-rose-600',
+    },
+    {
+        id: 'analytics',
+        title: 'Analytics & BI',
+        description: 'Dashboard insight data riil RT 04',
+        icon: Activity,
+        href: '/admin/analytics',
+        color: 'from-cyan-600 to-blue-700',
     },
     {
         id: 'pengaturan',

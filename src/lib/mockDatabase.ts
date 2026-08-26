@@ -18,6 +18,10 @@ export interface LetterTemplate {
     category: string;
     description: string;
     requiredFields: string[];
+    files?: {
+        docx: string;
+        pdf: string;
+    };
 }
 
 export interface FinanceReport {
@@ -26,12 +30,13 @@ export interface FinanceReport {
     expense?: number;
     balance?: number;
     description?: string;
-    bulan?: string;
-    tahun?: string | number;
-    saldo_awal?: number;
-    total_pemasukan?: number;
-    total_pengeluaran?: number;
-    saldo_akhir?: number;
+    bulan: string;
+    tahun: number;
+    saldo_awal: number;
+    total_pemasukan: number;
+    total_pengeluaran: number;
+    saldo_akhir: number;
+    transaksi: any[];
 }
 
 export interface FinanceSummary {
@@ -39,8 +44,8 @@ export interface FinanceSummary {
     pemasukanBulanIni: number;
     pengeluaranBulanIni: number;
     terakhirDiperbarui: string;
-    avgMonthlyExpense?: number;
-    categories?: Array<{ kategori: string; jumlah: number }>;
+    avgMonthlyExpense: number;
+    categories: Array<{ kategori: string; jumlah: number; persentase: number; avgBulanan: number; keterangan: string }>;
 }
 
 export interface Statistik {
@@ -151,11 +156,12 @@ export class MockDB {
                 balance: 3300000,
                 description: "Kas bulanan & iuran kebersihan",
                 bulan: "Januari",
-                tahun: "2026",
+                tahun: 2026,
                 saldo_awal: 4600000,
                 total_pemasukan: 4500000,
                 total_pengeluaran: 1200000,
                 saldo_akhir: 7900000,
+                transaksi: [],
             },
             {
                 month: "Desember 2025",
@@ -164,11 +170,12 @@ export class MockDB {
                 balance: 2100000,
                 description: "Perbaikan lampu jalan & kerja bakti",
                 bulan: "Desember",
-                tahun: "2025",
+                tahun: 2025,
                 saldo_awal: 2500000,
                 total_pemasukan: 4200000,
                 total_pengeluaran: 2100000,
                 saldo_akhir: 4600000,
+                transaksi: [],
             },
         ];
     }
@@ -184,8 +191,8 @@ export class MockDB {
             terakhirDiperbarui: "2026-01-31",
             avgMonthlyExpense: 1500000,
             categories: [
-                { kategori: "Kebersihan & Keamanan", jumlah: 800000 },
-                { kategori: "Pemeliharaan Fasilitas", jumlah: 400000 },
+                { kategori: "Kebersihan & Keamanan", jumlah: 800000, persentase: 66, avgBulanan: 800000, keterangan: "Operasional harian" },
+                { kategori: "Pemeliharaan Fasilitas", jumlah: 400000, persentase: 34, avgBulanan: 400000, keterangan: "Perbaikan lampu jalan" },
             ],
         };
     }

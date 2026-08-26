@@ -44,7 +44,7 @@ export interface LetterTemplate {
     title: string;
     description: string;
     category: string;
-    files: {
+    files?: {
         docx: string;
         pdf: string;
     };
