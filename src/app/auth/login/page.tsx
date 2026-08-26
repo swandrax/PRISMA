@@ -60,14 +60,55 @@ export default function LoginPage() {
             return
         }
 
-        // Authenticate via Supabase Auth (with automatic demo fallback)
-        let result;
-        if (selectedRole === 'admin') {
-            result = await signInAdmin(email, password)
-        } else if (selectedRole === 'pengurus') {
-            result = await signInPengurus(email, password)
-        } else {
-            result = await signInWarga(email, password)
+        // Authenticate via Warga Knowledge Graph RAG API & Database
+        let result: { success: boolean; user?: any; error?: string } = { success: false };
+        try {
+            const apiRes = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    identifier: email,
+                    password: password,
+                    role: selectedRole
+                })
+            });
+
+            if (apiRes.ok) {
+                const apiData = await apiRes.json();
+                if (apiData.success && apiData.user) {
+                    result = {
+                        success: true,
+                        user: {
+                            id: apiData.user.id,
+                            nama: apiData.user.nama,
+                            email: apiData.user.email,
+                            role: apiData.user.role,
+                            permissions: [],
+                            metadata: {
+                                no_telepon: apiData.user.telepon,
+                                alamat: apiData.user.alamat,
+                                blok: apiData.user.blok,
+                                no_rumah: apiData.user.no_rumah,
+                                status: apiData.user.status,
+                            }
+                        }
+                    };
+                } else {
+                    result = { success: false, error: apiData.error };
+                }
+            } else {
+                const errData = await apiRes.json().catch(() => ({}));
+                result = { success: false, error: errData.error || "Gagal melakukan login" };
+            }
+        } catch {
+            // Fallback to local auth helpers
+            if (selectedRole === 'admin') {
+                result = await signInAdmin(email, password)
+            } else if (selectedRole === 'pengurus') {
+                result = await signInPengurus(email, password)
+            } else {
+                result = await signInWarga(email, password)
+            }
         }
 
         if (result.success && result.user) {
