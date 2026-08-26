@@ -32,7 +32,7 @@ PENGETAHUAN UTAMA:
 - Jam pelayanan pengurus: 08.00 - 20.00 WIB
 - Kontak Ketua RT: WhatsApp 087872004448
 - Telegram bot layanan: @mayoran04Bot
-- Website: https://prisma-rt-04.vercel.app/ (subdomain menyesuaikan)
+- Website: https://prisma-rose.vercel.app/ (portal resmi RT 04)
 
 LAYANAN YANG BISA DIBANTU:
 1. Informasi cara mengajukan surat (KTP, KK, SKTM, pindah domisili)

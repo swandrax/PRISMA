@@ -58,6 +58,7 @@
     "tailwind-merge": "^3.4.0",
     "ts-node": "^10.9.2",
     "uuid": "^13.0.0",
+    "ws": "^8.18.0",
     "xss": "^1.0.15",
     "yet-another-react-lightbox": "^3.32.0"
   },
@@ -73,6 +74,7 @@
     "@types/react-dom": "19.2.3",
     "@types/react-google-recaptcha": "^2.1.9",
     "@types/use-sync-external-store": "^1.5.0",
+    "@types/ws": "^8.5.14",
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
@@ -80,6 +82,7 @@
     "postcss": "^8.5.10",
     "prisma": "^6.4.1",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5",
     "vitest": "^4.0.18"
   },
