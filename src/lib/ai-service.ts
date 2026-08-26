@@ -109,14 +109,14 @@ class AIServiceClient {
         }
 
         // Fallback: RAG + Guardrails + Reasoning
-        return this._mockChatWithRAG(sanitizedMessage);
+        return this._mockChatWithRAG(sanitizedMessage, message);
     }
 
-    private _mockChatWithRAG(message: string): ChatResponse {
+    private _mockChatWithRAG(message: string, rawMessage?: string): ChatResponse {
         const lowerMessage = message.toLowerCase();
 
         // 1. Input Guardrails Check
-        const guardrail = this._runInputGuardrails(message);
+        const guardrail = this._runInputGuardrails(rawMessage || message);
         if (!guardrail.passed) {
             const reasoning = `[INPUT GUARDRAILS] Menganalisis keamanan teks input...\n⚠️ BLOCKED: ${guardrail.reason}\n[REASONING] Menghentikan proses penjawaban untuk keamanan.`;
             return {

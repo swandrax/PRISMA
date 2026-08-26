@@ -19,7 +19,8 @@ import {
     Upload,
     Download,
     Plus,
-    Eye
+    Eye,
+    Megaphone
 } from "lucide-react"
 
 interface DashboardStats {
@@ -114,6 +115,14 @@ const adminMenus: MenuCard[] = [
         icon: Folder,
         href: '/admin/pengumuman',
         color: 'from-indigo-600 to-purple-600',
+    },
+    {
+        id: 'marketing',
+        title: 'Marketing & Publikasi',
+        description: 'Cetak flyer dan materi promosi QR',
+        icon: Megaphone,
+        href: '/admin/marketing',
+        color: 'from-pink-600 to-rose-600',
     },
     {
         id: 'pengaturan',

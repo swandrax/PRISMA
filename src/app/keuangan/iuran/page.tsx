@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,11 @@ import {
     TrendingUp,
     Search,
     Download,
-    ChevronRight
+    ChevronRight,
+    Lock,
+    QrCode,
+    Shield,
+    LogIn
 } from "lucide-react"
 import { DEFAULT_IURAN_CONFIG, formatRupiah, getIuranComplianceRate } from "@/lib/strategic-recommendations"
 
@@ -43,6 +47,21 @@ export default function IuranPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'pending' | 'overdue'>('all');
     const [wargaData] = useState<WargaIuran[]>(mockWargaIuran);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const loggedIn = localStorage.getItem('warga_logged_in') === 'true';
+        setIsLoggedIn(loggedIn);
+    }, []);
+
+    const maskName = (name: string) => {
+        if (isLoggedIn) return name;
+        const parts = name.split(' ');
+        if (parts.length === 1) {
+            return parts[0].slice(0, 2) + '***';
+        }
+        return `${parts[0]} ${parts[1].slice(0, 1)}***`;
+    };
 
     const currentMonth = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
@@ -101,13 +120,44 @@ export default function IuranPage() {
                     <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                <Wallet className="h-3 w-3" /> Rekomendasi #1
+                                <Wallet className="h-3 w-3" /> Swadaya Warga
                             </span>
                         </div>
                         <h1 className="text-3xl font-bold text-foreground">Manajemen Iuran Warga</h1>
                         <p className="text-muted-foreground">Tingkat iuran: {formatRupiah(DEFAULT_IURAN_CONFIG.nominal)} / bulan • Periode: {currentMonth}</p>
                     </div>
+                    <div className="flex gap-2">
+                        <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm">
+                            <Link href="/keuangan/pembayaran">
+                                <QrCode className="h-4 w-4 mr-2" />
+                                Bayar via QRIS / VA
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
+
+                {/* Privacy Banner if not logged in */}
+                {!isLoggedIn && (
+                    <div className="mb-8 p-4 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-800/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-blue-600 dark:text-blue-400 mt-0.5">
+                                <Shield className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-blue-900 dark:text-blue-200 text-sm">Privasi Data Warga Terlindungi</h3>
+                                <p className="text-xs text-blue-700 dark:text-blue-300 mt-0.5">
+                                    Data nama warga disamarkan secara publik. Silakan login ke akun warga Anda untuk melihat status lengkap dan riwayat pembayaran Anda.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+                            <Link href="/auth/login?redirect=/keuangan/iuran">
+                                <LogIn className="h-4 w-4 mr-2" />
+                                Login Warga
+                            </Link>
+                        </Button>
+                    </div>
+                )}
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -248,13 +298,20 @@ export default function IuranPage() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle>Daftar Iuran Warga</CardTitle>
-                            <CardDescription>{filteredWarga.length} warga ditemukan</CardDescription>
+                            <CardTitle className="flex items-center gap-2">
+                                <span>Daftar Iuran Warga</span>
+                                {!isLoggedIn && <Lock className="h-4 w-4 text-muted-foreground" />}
+                            </CardTitle>
+                            <CardDescription>
+                                {filteredWarga.length} data ditemukan {!isLoggedIn && '(nama disamarkan demi privasi)'}
+                            </CardDescription>
                         </div>
-                        <Button variant="outline" size="sm">
-                            <Download className="h-4 w-4 mr-2" />
-                            Export
-                        </Button>
+                        {isLoggedIn && (
+                            <Button variant="outline" size="sm">
+                                <Download className="h-4 w-4 mr-2" />
+                                Export
+                            </Button>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
@@ -268,7 +325,7 @@ export default function IuranPage() {
                                             <span className="text-sm font-bold text-primary">{warga.nama.charAt(0)}</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-medium">{warga.nama}</h4>
+                                            <h4 className="font-medium">{maskName(warga.nama)}</h4>
                                             <p className="text-sm text-muted-foreground">{warga.alamat}</p>
                                         </div>
                                     </div>
@@ -295,7 +352,7 @@ export default function IuranPage() {
                     <Button asChild>
                         <Link href="/keuangan/pembayaran">
                             <Wallet className="h-4 w-4 mr-2" />
-                            Catat Pembayaran
+                            Bayar via QRIS / VA
                         </Link>
                     </Button>
                     <Button variant="outline" asChild>

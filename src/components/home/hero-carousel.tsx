@@ -20,8 +20,8 @@ import {
 const items = [
     {
         id: 1,
-        heading: "Guyub Rukun Warga RT 04 Kemayoran",
-        text: "Membangun sinergi dan kebersamaan melalui gotong royong digital dan fisik.",
+        heading: "Urus RT Dari Genggaman Tangan",
+        text: "Guyub Digital, Transparan Nyata. Membangun sinergi warga RT 04 Kemayoran secara praktis.",
         bgClass: "bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900",
         badgeText: "Portal Warga RT 04",
         badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/20",
@@ -32,10 +32,10 @@ const items = [
     },
     {
         id: 2,
-        heading: "Transparansi dalam Genggaman",
-        text: "Pantau arus kas dan ajukan surat pengantar kapan saja, di mana saja.",
+        heading: "Kurangi Kerja Manual, Tingkatkan Kepercayaan",
+        text: "Otomatisasi laporan kas, pembuatan surat, dan pengingat jadwal warga. Bebas repot bagi pengurus.",
         bgClass: "bg-gradient-to-br from-teal-900 via-emerald-950 to-green-950",
-        badgeText: "Transparansi RT 04",
+        badgeText: "Manajemen Cerdas",
         badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/20",
         primaryBtnClass: "bg-teal-600 hover:bg-teal-700 text-white shadow-teal-950/40 border border-teal-500/30",
         secondaryBtnClass: "border-2 border-teal-400/50 bg-teal-950/40 hover:bg-teal-950/60 text-teal-200 hover:text-white",
@@ -44,10 +44,10 @@ const items = [
     },
     {
         id: 3,
-        heading: "Lingkungan Aman & Terpantau",
-        text: "Integrasi sistem keamanan dan respon darurat 24 jam untuk ketenangan warga.",
+        heading: "Data Kamu Aman, Laporan Terbuka",
+        text: "Sistem diamankan dengan enkripsi standar industri. Pantau langsung kemana iuran kas Anda digunakan.",
         bgClass: "bg-gradient-to-br from-orange-950 via-red-950 to-rose-950",
-        badgeText: "Keamanan RT 04",
+        badgeText: "Keamanan Data",
         badgeClass: "text-rose-300 bg-rose-500/10 border-rose-500/20",
         primaryBtnClass: "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-950/40 border border-rose-500/30",
         secondaryBtnClass: "border-2 border-rose-400/50 bg-rose-950/40 hover:bg-rose-950/60 text-rose-200 hover:text-white",

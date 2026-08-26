@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
-import { MessageCircle, Phone, Send, X } from 'lucide-react'
+import { MessageCircle, Phone, Send, X, Share2, CalendarClock } from 'lucide-react'
 import { useClickOutside } from '@/hooks/use-click-outside'
-import { secureStorage } from '@/lib/security'
+import { secureStorage, getCredentials } from '@/lib/security'
 
 const RT_PHONE_NUMBER = '6287872004448'
 
@@ -18,11 +18,13 @@ export function WhatsAppDirect() {
     const [isOpen, setIsOpen] = useState(false)
     const [wargaProfile, setWargaProfile] = useState<WargaProfile | null>(null)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [userRole, setUserRole] = useState<'admin' | 'staff' | 'warga' | null>(null)
 
     useEffect(() => {
         const checkLogin = () => {
             const loggedIn = localStorage.getItem('warga_logged_in')
             const profile = secureStorage.get<WargaProfile>('warga_profile')
+            const creds = getCredentials()
 
             if (loggedIn && profile) {
                 setIsLoggedIn(true)
@@ -30,6 +32,12 @@ export function WhatsAppDirect() {
             } else {
                 setIsLoggedIn(false)
                 setWargaProfile(null)
+            }
+
+            if (creds && creds.role) {
+                setUserRole(creds.role)
+            } else {
+                setUserRole(null)
             }
         }
 
@@ -64,6 +72,18 @@ export function WhatsAppDirect() {
 
         const message = `Halo ${wargaProfile.nama}, ini pesan dari Pengurus RT 04 Kemayoran.`
         openWhatsApp(phone, message)
+    }
+
+    const shareFinancialReport = () => {
+        const url = window.location.origin + '/keuangan/laporan'
+        const message = `Halo Warga RT 04, Laporan Keuangan Kas Bulanan terbaru sudah diterbitkan. Mari wujudkan transparansi bersama.\n\nCek selengkapnya di portal resmi PRISMA RT 04:\n${url}`
+        openWhatsApp('', message) // Empty phone number to prompt user to select a group or contacts
+    }
+
+    const shareSchedule = () => {
+        const url = window.location.origin + '/#jadwal'
+        const message = `Halo Warga RT 04, Mengingatkan untuk mengecek agenda dan jadwal kegiatan warga terbaru.\n\nLihat detail kegiatan di portal PRISMA RT 04:\n${url}`
+        openWhatsApp('', message) 
     }
 
     const containerRef = useRef<HTMLDivElement>(null)
@@ -114,6 +134,36 @@ export function WhatsAppDirect() {
                             <div className="text-left">
                                 <div className="font-medium">Pesan ke {wargaProfile.nama}</div>
                                 <div className="text-xs opacity-80">{wargaProfile.telepon}</div>
+                            </div>
+                        </Button>
+                    )}
+
+                    {/* Share Laporan Keuangan (Admin/Staff Only) */}
+                    {(userRole === 'admin' || userRole === 'staff') && (
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start gap-3 border-blue-500 text-blue-600 hover:bg-blue-50 transition-colors active:bg-blue-100"
+                            onClick={shareFinancialReport}
+                        >
+                            <Share2 className="h-5 w-5" />
+                            <div className="text-left">
+                                <div className="font-medium">Share Laporan Kas</div>
+                                <div className="text-xs opacity-80">Kirim ke WA Grup</div>
+                            </div>
+                        </Button>
+                    )}
+
+                    {/* Share Jadwal Kegiatan (Admin/Staff Only) */}
+                    {(userRole === 'admin' || userRole === 'staff') && (
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start gap-3 border-orange-500 text-orange-600 hover:bg-orange-50 transition-colors active:bg-orange-100"
+                            onClick={shareSchedule}
+                        >
+                            <CalendarClock className="h-5 w-5" />
+                            <div className="text-left">
+                                <div className="font-medium">Share Info Kegiatan</div>
+                                <div className="text-xs opacity-80">Kirim ke WA Grup</div>
                             </div>
                         </Button>
                     )}
