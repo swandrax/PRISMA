@@ -22,37 +22,37 @@ const items = [
         id: 1,
         heading: "Urus RT Dari Genggaman Tangan",
         text: "Guyub Digital, Transparan Nyata. Membangun sinergi warga RT 04 Kemayoran secara praktis.",
-        bgClass: "bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900",
+        bgClass: "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900 dark:via-indigo-900 dark:to-purple-900",
         badgeText: "Portal Warga RT 04",
-        badgeClass: "text-blue-300 bg-blue-500/10 border-blue-500/20",
-        primaryBtnClass: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-950/40 border border-indigo-500/30",
-        secondaryBtnClass: "border-2 border-indigo-400/50 bg-indigo-950/40 hover:bg-indigo-950/60 text-indigo-200 hover:text-white",
-        tertiaryBtnClass: "border-2 border-purple-400/50 bg-purple-950/40 hover:bg-purple-950/60 text-purple-200 hover:text-white",
-        dotColorClass: "bg-blue-400"
+        badgeClass: "text-blue-700 bg-blue-100 border-blue-200 dark:text-blue-300 dark:bg-blue-500/10 dark:border-blue-500/20",
+        primaryBtnClass: "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-indigo-950/40 border border-indigo-500",
+        secondaryBtnClass: "border-2 border-indigo-300 bg-white/50 hover:bg-white text-indigo-700 dark:border-indigo-400/50 dark:bg-indigo-950/40 dark:hover:bg-indigo-950/60 dark:text-indigo-200 dark:hover:text-white",
+        tertiaryBtnClass: "border-2 border-purple-300 bg-white/50 hover:bg-white text-purple-700 dark:border-purple-400/50 dark:bg-purple-950/40 dark:hover:bg-purple-950/60 dark:text-purple-200 dark:hover:text-white",
+        dotColorClass: "bg-blue-600 dark:bg-blue-400"
     },
     {
         id: 2,
         heading: "Kurangi Kerja Manual, Tingkatkan Kepercayaan",
         text: "Otomatisasi laporan kas, pembuatan surat, dan pengingat jadwal warga. Bebas repot bagi pengurus.",
-        bgClass: "bg-gradient-to-br from-teal-900 via-emerald-950 to-green-950",
+        bgClass: "bg-gradient-to-br from-teal-50 via-emerald-50 to-green-50 dark:from-teal-900 dark:via-emerald-950 dark:to-green-950",
         badgeText: "Manajemen Cerdas",
-        badgeClass: "text-teal-300 bg-teal-500/10 border-teal-500/20",
-        primaryBtnClass: "bg-teal-600 hover:bg-teal-700 text-white shadow-teal-950/40 border border-teal-500/30",
-        secondaryBtnClass: "border-2 border-teal-400/50 bg-teal-950/40 hover:bg-teal-950/60 text-teal-200 hover:text-white",
-        tertiaryBtnClass: "border-2 border-emerald-400/50 bg-emerald-950/40 hover:bg-emerald-950/60 text-emerald-200 hover:text-white",
-        dotColorClass: "bg-teal-400"
+        badgeClass: "text-teal-700 bg-teal-100 border-teal-200 dark:text-teal-300 dark:bg-teal-500/10 dark:border-teal-500/20",
+        primaryBtnClass: "bg-teal-600 hover:bg-teal-700 text-white shadow-teal-200 dark:shadow-teal-950/40 border border-teal-500",
+        secondaryBtnClass: "border-2 border-teal-300 bg-white/50 hover:bg-white text-teal-700 dark:border-teal-400/50 dark:bg-teal-950/40 dark:hover:bg-teal-950/60 dark:text-teal-200 dark:hover:text-white",
+        tertiaryBtnClass: "border-2 border-emerald-300 bg-white/50 hover:bg-white text-emerald-700 dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/60 dark:text-emerald-200 dark:hover:text-white",
+        dotColorClass: "bg-teal-600 dark:bg-teal-400"
     },
     {
         id: 3,
         heading: "Data Kamu Aman, Laporan Terbuka",
         text: "Sistem diamankan dengan enkripsi standar industri. Pantau langsung kemana iuran kas Anda digunakan.",
-        bgClass: "bg-gradient-to-br from-orange-950 via-red-950 to-rose-950",
+        bgClass: "bg-gradient-to-br from-orange-50 via-red-50 to-rose-50 dark:from-orange-950 dark:via-red-950 dark:to-rose-950",
         badgeText: "Keamanan Data",
-        badgeClass: "text-rose-300 bg-rose-500/10 border-rose-500/20",
-        primaryBtnClass: "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-950/40 border border-rose-500/30",
-        secondaryBtnClass: "border-2 border-rose-400/50 bg-rose-950/40 hover:bg-rose-950/60 text-rose-200 hover:text-white",
-        tertiaryBtnClass: "border-2 border-orange-400/50 bg-orange-950/40 hover:bg-orange-950/60 text-orange-200 hover:text-white",
-        dotColorClass: "bg-rose-400"
+        badgeClass: "text-rose-700 bg-rose-100 border-rose-200 dark:text-rose-300 dark:bg-rose-500/10 dark:border-rose-500/20",
+        primaryBtnClass: "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-200 dark:shadow-rose-950/40 border border-rose-500",
+        secondaryBtnClass: "border-2 border-rose-300 bg-white/50 hover:bg-white text-rose-700 dark:border-rose-400/50 dark:bg-rose-950/40 dark:hover:bg-rose-950/60 dark:text-rose-200 dark:hover:text-white",
+        tertiaryBtnClass: "border-2 border-orange-300 bg-white/50 hover:bg-white text-orange-700 dark:border-orange-400/50 dark:bg-orange-950/40 dark:hover:bg-orange-950/60 dark:text-orange-200 dark:hover:text-white",
+        dotColorClass: "bg-rose-600 dark:bg-rose-400"
     },
 ]
 
@@ -292,7 +292,7 @@ export function HeroCarousel() {
     }
 
     return (
-        <div className="relative min-h-[660px] sm:min-h-[720px] md:h-[620px] w-full overflow-hidden bg-slate-950 select-none flex items-center py-12 md:py-0">
+        <div className="relative min-h-[660px] sm:min-h-[720px] md:h-[620px] w-full overflow-hidden bg-background select-none flex items-center py-12 md:py-0">
             {/* Background Slides */}
             <AnimatePresence mode="wait">
                 <motion.div
@@ -304,9 +304,9 @@ export function HeroCarousel() {
                     className={`absolute inset-0 flex items-center ${items[currentIndex].bgClass}`}
                 >
                     {/* Visual Overlay for contrast improvement */}
-                    <div className="absolute inset-0 bg-black/45" />
+                    <div className="absolute inset-0 bg-white/40 dark:bg-black/45 backdrop-blur-[2px] dark:backdrop-blur-none" />
 
-                    <div className="container relative z-10 px-6 mx-auto text-white">
+                    <div className="container relative z-10 px-6 mx-auto text-foreground">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center justify-between">
                             
                             {/* Left column: Text Information & Buttons */}
@@ -325,7 +325,7 @@ export function HeroCarousel() {
                                     initial={{ y: 30, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.2, duration: 0.5 }}
-                                    className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl drop-shadow-md text-white font-sans leading-tight"
+                                    className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl drop-shadow-md text-slate-900 dark:text-white font-sans leading-tight"
                                 >
                                     {items[currentIndex].heading}
                                 </motion.h1>
@@ -334,7 +334,7 @@ export function HeroCarousel() {
                                     initial={{ y: 30, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.4, duration: 0.5 }}
-                                    className="text-base md:text-lg opacity-85 max-w-2xl leading-relaxed text-slate-200"
+                                    className="text-base md:text-lg max-w-2xl leading-relaxed text-slate-700 dark:text-slate-200"
                                 >
                                     {items[currentIndex].text}
                                 </motion.p>
@@ -403,7 +403,7 @@ export function HeroCarousel() {
                         className={`h-2 rounded-full transition-all duration-300 ${
                             index === currentIndex 
                                 ? `w-8 ${items[currentIndex].dotColorClass}` 
-                                : "w-2 bg-white/40 hover:bg-white/70"
+                                : "w-2 bg-slate-400/40 hover:bg-slate-400/70 dark:bg-white/40 dark:hover:bg-white/70"
                         }`}
                         aria-label={`Go to slide ${index + 1}`}
                     />
@@ -415,7 +415,7 @@ export function HeroCarousel() {
                 variant="ghost"
                 size="icon"
                 onClick={prev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 rounded-full h-12 w-12 z-20 transition-all"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 rounded-full h-12 w-12 z-20 transition-all"
             >
                 <ChevronLeft className="h-8 w-8" />
             </Button>
@@ -425,7 +425,7 @@ export function HeroCarousel() {
                 variant="ghost"
                 size="icon"
                 onClick={next}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white hover:bg-white/10 rounded-full h-12 w-12 z-20 transition-all"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 rounded-full h-12 w-12 z-20 transition-all"
             >
                 <ChevronRight className="h-8 w-8" />
             </Button>

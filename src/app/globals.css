@@ -38,31 +38,31 @@
    Optimized for eye comfort and readability
 */
 .dark {
-  --background: #0c0406; /* Hitam Kemerahan Muda / Premium soft reddish-black */
-  --foreground: #fcf8f8; /* Soft pinkish-white for optimal contrast */
+  --background: #020617; /* Slate 950 */
+  --foreground: #f8fafc; /* Slate 50 */
 
-  --primary: #f43f5e; /* Rose-500: beautiful premium soft red highlight */
+  --primary: #3b82f6; /* Blue 500 */
   --primary-foreground: #ffffff;
 
-  --secondary: #2a0e14; /* Deep burgundy-black */
-  --secondary-foreground: #fcd5d9;
+  --secondary: #0f172a; /* Slate 900 */
+  --secondary-foreground: #cbd5e1; /* Slate 300 */
 
-  --muted: #18080a; /* Muted reddish-black */
-  --muted-foreground: #d4a8b0; /* High-contrast warm rose-gray text */
+  --muted: #0f172a; /* Slate 900 */
+  --muted-foreground: #94a3b8; /* Slate 400 */
 
-  --accent: #2c0f14; /* Highlight accent block */
-  --accent-foreground: #fda4af; /* Rose-300 */
+  --accent: #1e293b; /* Slate 800 */
+  --accent-foreground: #60a5fa; /* Blue 400 */
 
-  --card: #14070a; /* Premium reddish-black card */
-  --card-foreground: #f1e5e6;
+  --card: #0f172a; /* Slate 900 */
+  --card-foreground: #f8fafc; /* Slate 50 */
 
-  --border: #4a1c24; /* Higher-contrast border */
-  --input: #3b171f; /* Clear input field styling */
-  --ring: #f43f5e;
+  --border: #1e293b; /* Slate 800 */
+  --input: #1e293b; /* Slate 800 */
+  --ring: #3b82f6; /* Blue 500 */
 
   /* Custom gradient text colors for dark mode */
-  --gradient-text: #fcf8f8;
-  --gradient-text-muted: #cbd5e1;
+  --gradient-text: #f8fafc;
+  --gradient-text-muted: #94a3b8;
 }
 
 /* ================================

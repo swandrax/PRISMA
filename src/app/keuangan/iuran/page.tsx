@@ -51,7 +51,10 @@ export default function IuranPage() {
 
     useEffect(() => {
         const loggedIn = localStorage.getItem('warga_logged_in') === 'true';
-        setIsLoggedIn(loggedIn);
+        // Use setTimeout to avoid synchronous setState warning
+        setTimeout(() => {
+            setIsLoggedIn(loggedIn);
+        }, 0);
     }, []);
 
     const maskName = (name: string) => {
@@ -150,7 +153,7 @@ export default function IuranPage() {
                                 </p>
                             </div>
                         </div>
-                        <Button asChild size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+                        <Button asChild size="sm" variant="default" className="bg-blue-600 hover:bg-blue-700 text-white shrink-0 animate-[pulse_2s_ease-in-out_infinite] hover:animate-none transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(37,99,235,0.6)]">
                             <Link href="/auth/login?redirect=/keuangan/iuran">
                                 <LogIn className="h-4 w-4 mr-2" />
                                 Login Warga
