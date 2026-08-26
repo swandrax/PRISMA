@@ -1,8 +1,5 @@
 {
-  "_init": {
-    "features": [
-      "database",
-      "auth"
-    ]
-  }
+  "orgId": "org-crimson-sky-05768276",
+  "projectId": "patient-heart-35883707",
+  "branch": "production"
 }
