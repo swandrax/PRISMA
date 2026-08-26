@@ -195,7 +195,7 @@ class AIServiceClient {
                 const latest = reports[reports.length - 1];
                 reasoningSteps.push(`[RAG CONTEXT] Data laporan keuangan kas periode ${latest.bulan} ${latest.tahun} berhasil diambil.`);
 
-                const formatCur = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+                const formatCur = (val?: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val || 0);
 
                 response = `Ringkasan Laporan Kas RT 04 (Periode ${latest.bulan} ${latest.tahun}):\n- Saldo Awal: ${formatCur(latest.saldo_awal)}\n- Total Pemasukan: ${formatCur(latest.total_pemasukan)}\n- Total Pengeluaran: ${formatCur(latest.total_pengeluaran)}\n- Saldo Akhir (Kas Bersih): ${formatCur(latest.saldo_akhir)}\n\nIuran bulanan warga ditetapkan sebesar Rp 10.000 per rumah. Pembayaran dapat ditransfer ke rekening RT atau via QRIS.`;
                 intent = 'keuangan';

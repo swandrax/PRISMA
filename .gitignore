@@ -107,6 +107,4 @@ datasccience prisma.txt
 # Sensitive credentials, database warga, and mock API data
 prisma_demo.db
 public/api/database/
-src/lib/demo-credentials.ts
 src/lib/demo-credentials.test.ts
-src/lib/mockDatabase.ts
