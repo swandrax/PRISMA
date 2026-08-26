@@ -48,6 +48,9 @@ model User {
 
   warga        Warga?
   auditLogs    AuditLog[]
+
+  @@index([email])
+  @@index([role])
 }
 
 model Warga {
@@ -68,7 +71,7 @@ model Warga {
   blok             String       @default("A")
   noRumah          String       @default("1")
   rt               String       @default("04")
-  rw               String       @default("06")
+  rw               String       @default("09")
   telepon          String?
   email            String?
   status           StatusWarga  @default(AKTIF)
@@ -80,6 +83,12 @@ model Warga {
   pengurus         Pengurus?
   suratList        Surat[]
   laporanList      LaporanKeamanan[]
+
+  @@index([nik])
+  @@index([nama])
+  @@index([blok])
+  @@index([rt, rw])
+  @@index([status])
 }
 
 model Pengurus {
@@ -93,6 +102,8 @@ model Pengurus {
   updatedAt        DateTime  @updatedAt
 
   warga            Warga     @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+
+  @@index([jabatan])
 }
 
 model Surat {
@@ -110,6 +121,10 @@ model Surat {
   updatedAt        DateTime     @updatedAt
 
   warga            Warga        @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+
+  @@index([wargaId])
+  @@index([status])
+  @@index([tanggalPengajuan])
 }
 
 model Keuangan {
@@ -117,13 +132,17 @@ model Keuangan {
   kodeTransaksi    String?         @unique
   jenis            JenisTransaksi
   kategori         String          // Iuran Warga, Kas RT, Donasi, Keamanan, Sampah, Listrik, Perbaikan
-  jumlah           Float
+  jumlah           Decimal         @db.Decimal(15, 2)
   keterangan       String?
   buktiBayarUrl    String?         // S3 receipt link
   dicatatOleh      String?         // Nama/ID pencatat
   tanggal          DateTime        @default(now())
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+
+  @@index([jenis])
+  @@index([kategori])
+  @@index([tanggal])
 }
 
 model LaporanKeamanan {
@@ -142,6 +161,23 @@ model LaporanKeamanan {
   updatedAt        DateTime        @updatedAt
 
   pelapor          Warga           @relation(fields: [pelaporId], references: [id], onDelete: Cascade)
+
+  @@index([pelaporId])
+  @@index([status])
+  @@index([tanggal])
+}
+
+model AuthCode {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  role        Role     @default(WARGA)
+  description String?
+  active      Boolean  @default(true)
+  usedCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([code])
 }
 
 model AuditLog {
@@ -154,4 +190,8 @@ model AuditLog {
   createdAt        DateTime     @default(now())
 
   user             User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }

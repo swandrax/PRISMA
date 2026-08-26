@@ -16,7 +16,6 @@ import {
     logSecurityEvent,
     storeCredentials,
     secureStorage,
-    validateEmailFormat
 } from "@/lib/security"
 import { RateLimitWarning, SecurityBadge } from "@/components/ui/security"
 
@@ -51,24 +50,45 @@ export default function LoginPage() {
         setIsLoading(true)
 
         const form = event.target as HTMLFormElement
-        const email = sanitizeInput((form.elements.namedItem('email') as HTMLInputElement).value)
+        const identifier = sanitizeInput((form.elements.namedItem('email') as HTMLInputElement).value)
         const password = (form.elements.namedItem('password') as HTMLInputElement).value
+        const rtCode = (form.elements.namedItem('rtCode') as HTMLInputElement)?.value || ''
 
-        if (!validateEmailFormat(email)) {
-            setLoginError("Format email tidak valid atau domain diblokir.")
+        if (!identifier.trim()) {
+            setLoginError("Email, NIK, atau Nomor Telepon wajib diisi.")
             setIsLoading(false)
             return
         }
 
         // Authenticate via Warga Knowledge Graph RAG API & Database
-        let result: { success: boolean; user?: any; error?: string } = { success: false };
+        let result: {
+            success: boolean;
+            user?: {
+                id: string;
+                nama: string;
+                email: string;
+                role: string;
+                permissions?: string[];
+                metadata: {
+                    no_telepon?: string;
+                    tanggal_lahir?: string;
+                    alamat?: string;
+                    blok?: string;
+                    no_rumah?: string;
+                    status?: string;
+                };
+                avatarUrl?: string;
+            };
+            error?: string;
+        } = { success: false };
         try {
             const apiRes = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    identifier: email,
-                    password: password,
+                    identifier,
+                    password,
+                    rtCode,
                     role: selectedRole
                 })
             });
@@ -103,11 +123,11 @@ export default function LoginPage() {
         } catch {
             // Fallback to local auth helpers
             if (selectedRole === 'admin') {
-                result = await signInAdmin(email, password)
+                result = await signInAdmin(identifier, password)
             } else if (selectedRole === 'pengurus') {
-                result = await signInPengurus(email, password)
+                result = await signInPengurus(identifier, password)
             } else {
-                result = await signInWarga(email, password)
+                result = await signInWarga(identifier, password)
             }
         }
 
@@ -162,8 +182,8 @@ export default function LoginPage() {
                 router.push("/")
             }
         } else {
-            logSecurityEvent('login_failed', false, `Email: ${email}`)
-            setLoginError(result.error || "Email atau password tidak ditemukan.")
+            logSecurityEvent('login_failed', false, `Identifier: ${identifier}`)
+            setLoginError(result.error || "Akun atau password tidak ditemukan.")
             setIsLoading(false)
         }
     }
@@ -280,17 +300,16 @@ export default function LoginPage() {
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">Email / NIK / No. Telepon</Label>
                                     <div className="relative">
                                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="email"
                                             name="email"
-                                            placeholder="warga.rt04@gmail.com"
-                                            type="email"
+                                            placeholder="Email, NIK (16 digit), atau No. WhatsApp"
+                                            type="text"
                                             className="pl-10"
                                             required
-                                            autoComplete="email"
                                         />
                                     </div>
                                 </div>
@@ -303,11 +322,24 @@ export default function LoginPage() {
                                             id="password"
                                             name="password"
                                             type="password"
+                                            placeholder="Masukkan password Anda"
                                             className="pl-10"
-                                            required
                                             autoComplete="current-password"
                                         />
                                     </div>
+                                </div>
+
+                                <div className="grid gap-2 p-2.5 bg-blue-50/40 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
+                                    <Label htmlFor="rtCode" className="text-xs font-semibold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
+                                        <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                        Kode Khusus RT (Opsional - Login Cepat / Verifikasi)
+                                    </Label>
+                                    <Input
+                                        id="rtCode"
+                                        name="rtCode"
+                                        placeholder="Contoh: RT04-WARGA-2026 atau WARGA04"
+                                        className="h-8 text-xs bg-white dark:bg-slate-900"
+                                    />
                                 </div>
 
                                 {/* Rate Limit Status */}
