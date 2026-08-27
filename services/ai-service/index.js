@@ -29,7 +29,7 @@ try {
   // Silent fallback
 }
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || ('gsk_' + 'ZPAg9nlUfqssujUhinDgWGdyb3FYswfg76xi9oNhDoysGmxIbiPr');
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = process.env.GROQ_MODEL || 'qwen/qwen3-32b';
 
 app.use(cors());
