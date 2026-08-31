@@ -69,74 +69,49 @@ interface MenuCard {
 
 const adminMenus: MenuCard[] = [
     {
-        id: 'files',
-        title: 'File Manager',
-        description: 'Kelola file, template, dan subfolder',
-        icon: Folder,
-        href: '/admin/files',
-        color: 'from-yellow-600 to-orange-600',
-        badge: 'Upload',
-    },
-    {
-        id: 'warga',
-        title: 'Data Warga',
-        description: 'Kelola data kependudukan warga RT',
-        icon: Users,
-        href: '/admin/warga',
-        color: 'from-purple-600 to-pink-600',
-    },
-    {
         id: 'surat',
-        title: 'Permohonan Surat',
-        description: 'Proses pengajuan surat warga',
+        title: 'Proses Permohonan Surat',
+        description: 'Tinjau dan setujui permohonan surat pengantar warga',
         icon: FileText,
         href: '/admin/surat',
         color: 'from-blue-600 to-cyan-600',
     },
     {
+        id: 'keamanan',
+        title: 'Tindak Lanjut Laporan',
+        description: 'Bereskan laporan keamanan dan keluhan warga',
+        icon: AlertTriangle,
+        href: '/admin/keamanan',
+        color: 'from-red-600 to-orange-600',
+    },
+    {
+        id: 'warga',
+        title: 'Validasi Data Warga',
+        description: 'Verifikasi warga baru atau perbarui data',
+        icon: Users,
+        href: '/admin/warga',
+        color: 'from-purple-600 to-pink-600',
+    },
+    {
         id: 'keuangan',
-        title: 'Keuangan RT',
-        description: 'Kelola transaksi dan laporan keuangan',
+        title: 'Input Transaksi Keuangan',
+        description: 'Catat pemasukan dan pengeluaran kas RT',
         icon: DollarSign,
         href: '/admin/keuangan',
         color: 'from-green-600 to-emerald-600',
     },
     {
-        id: 'keamanan',
-        title: 'Laporan Keamanan',
-        description: 'Tindak lanjut laporan warga',
-        icon: Shield,
-        href: '/admin/keamanan',
-        color: 'from-red-600 to-orange-600',
-    },
-    {
         id: 'pengumuman',
-        title: 'Pengumuman CMS',
-        description: 'Kelola konten pengumuman dan jadwal',
-        icon: Folder,
+        title: 'Buat Pengumuman',
+        description: 'Sebarkan informasi atau jadwal ke seluruh warga',
+        icon: Megaphone,
         href: '/admin/pengumuman',
         color: 'from-indigo-600 to-purple-600',
     },
     {
-        id: 'marketing',
-        title: 'Marketing & Publikasi',
-        description: 'Cetak flyer dan materi promosi QR',
-        icon: Megaphone,
-        href: '/admin/marketing',
-        color: 'from-pink-600 to-rose-600',
-    },
-    {
-        id: 'analytics',
-        title: 'Analytics & BI',
-        description: 'Dashboard insight data riil RT 04',
-        icon: Activity,
-        href: '/admin/analytics',
-        color: 'from-cyan-600 to-blue-700',
-    },
-    {
         id: 'pengaturan',
-        title: 'Pengaturan',
-        description: 'Konfigurasi sistem dan akun',
+        title: 'Pengaturan Sistem',
+        description: 'Konfigurasi RT, hak akses, dan preferensi',
         icon: Settings,
         href: '/admin/settings',
         color: 'from-gray-600 to-slate-600',
@@ -201,52 +176,49 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <Card className="bg-gradient-to-br from-purple-600 to-purple-800 border-0 text-white">
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-purple-200 text-sm">Total Warga</p>
-                                    <p className="text-3xl font-bold">{stats.totalWarga}</p>
-                                </div>
-                                <Users className="h-10 w-10 opacity-50" />
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-gradient-to-br from-green-600 to-green-800 border-0 text-white">
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-green-200 text-sm">Saldo Kas</p>
-                                    <p className="text-2xl font-bold">{formatCurrency(stats.totalKeuangan.saldo)}</p>
-                                </div>
-                                <DollarSign className="h-10 w-10 opacity-50" />
-                            </div>
-                        </CardContent>
-                    </Card>
-
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                     <Card className="bg-gradient-to-br from-blue-600 to-blue-800 border-0 text-white">
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
+                        <CardContent className="p-4 flex flex-col justify-between h-full">
+                            <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-blue-200 text-sm">Surat Pending</p>
                                     <p className="text-3xl font-bold">{stats.totalSurat.pending}</p>
+                                    <p className="text-blue-200 text-sm font-medium mt-1">Surat Perlu Diproses</p>
                                 </div>
-                                <FileText className="h-10 w-10 opacity-50" />
+                                <FileText className="h-8 w-8 opacity-50" />
                             </div>
+                            <Button size="sm" variant="secondary" className="w-full mt-4" asChild>
+                                <Link href="/admin/surat">Proses Sekarang</Link>
+                            </Button>
                         </CardContent>
                     </Card>
 
                     <Card className="bg-gradient-to-br from-red-600 to-red-800 border-0 text-white">
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
+                        <CardContent className="p-4 flex flex-col justify-between h-full">
+                            <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-red-200 text-sm">Laporan Aktif</p>
                                     <p className="text-3xl font-bold">{stats.totalLaporan.pending}</p>
+                                    <p className="text-red-200 text-sm font-medium mt-1">Laporan Belum Selesai</p>
                                 </div>
-                                <AlertTriangle className="h-10 w-10 opacity-50" />
+                                <AlertTriangle className="h-8 w-8 opacity-50" />
                             </div>
+                            <Button size="sm" variant="secondary" className="w-full mt-4" asChild>
+                                <Link href="/admin/keamanan">Tindak Lanjut</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-amber-600 to-amber-800 border-0 text-white">
+                        <CardContent className="p-4 flex flex-col justify-between h-full">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-3xl font-bold">{stats.pendatangBaru || 0}</p>
+                                    <p className="text-amber-200 text-sm font-medium mt-1">Warga Perlu Validasi</p>
+                                </div>
+                                <Users className="h-8 w-8 opacity-50" />
+                            </div>
+                            <Button size="sm" variant="secondary" className="w-full mt-4" asChild>
+                                <Link href="/admin/warga">Validasi Sekarang</Link>
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>

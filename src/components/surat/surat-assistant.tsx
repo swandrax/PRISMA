@@ -2,10 +2,10 @@
 
 import * as React from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageCircle, X, Send, Sparkles, Bot } from "lucide-react"
+import { X, Send, Sparkles, Bot } from "lucide-react"
 import { aiService } from "@/lib/ai-service"
 
 interface SuratAssistantProps {
@@ -59,7 +59,7 @@ export function SuratAssistant({ onFilter }: SuratAssistantProps) {
 
             onFilter(userMsg)
 
-        } catch (error) {
+        } catch {
             setMessages(prev => [...prev, { role: "bot", content: "Maaf, saya sedang ada gangguan. Silakan cari manual ya." }])
         } finally {
             setIsTyping(false)
@@ -86,7 +86,6 @@ export function SuratAssistant({ onFilter }: SuratAssistantProps) {
                             </div>
                             <div>
                                 <CardTitle className="text-sm font-bold text-white">Asisten Surat</CardTitle>
-                                <CardDescription className="text-xs text-purple-200">Didukung oleh PRISMA AI</CardDescription>
                             </div>
                         </div>
                         <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8 text-purple-200 hover:bg-white/10 hover:text-white">

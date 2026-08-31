@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { wargaGraphEngine } from "@/lib/warga-graph-rag";
-import { validateRTCode } from "@/lib/rt-auth-codes";
 import { logAudit } from "@/lib/audit-logger";
 import { getNeonSql } from "@/lib/neon";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { identifier, email, password, role, rtCode } = body;
+    const { identifier, email, password, role } = body;
 
     const loginId = (identifier || email || "").trim();
 
@@ -141,19 +140,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Authentication: check RT Passcode OR Password
+    // Authentication: check Password
     let isAuthenticated = false;
 
-    // Check RT Code if provided
-    if (rtCode) {
-      const rtCheck = validateRTCode(rtCode, foundCitizen.role as "WARGA" | "PENGURUS" | "ADMIN");
-      if (rtCheck.valid) {
-        isAuthenticated = true;
-      }
-    }
-
     // Check Password if provided
-    if (!isAuthenticated && password) {
+    if (password) {
       if (
         password === foundCitizen.passwordHash ||
         password === "prisma123" ||
@@ -173,7 +164,7 @@ export async function POST(req: NextRequest) {
       });
       return NextResponse.json({
         success: false,
-        error: "Password yang Anda masukkan salah atau Kode Khusus RT tidak valid.",
+        error: "Password yang Anda masukkan salah.",
       }, { status: 401 });
     }
 

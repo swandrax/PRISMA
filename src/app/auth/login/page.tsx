@@ -17,7 +17,7 @@ import {
     storeCredentials,
     secureStorage,
 } from "@/lib/security"
-import { RateLimitWarning, SecurityBadge } from "@/components/ui/security"
+import { RateLimitWarning } from "@/components/ui/security"
 
 type Role = 'warga' | 'pengurus' | 'admin'
 
@@ -52,7 +52,6 @@ export default function LoginPage() {
         const form = event.target as HTMLFormElement
         const identifier = sanitizeInput((form.elements.namedItem('email') as HTMLInputElement).value)
         const password = (form.elements.namedItem('password') as HTMLInputElement).value
-        const rtCode = (form.elements.namedItem('rtCode') as HTMLInputElement)?.value || ''
 
         if (!identifier.trim()) {
             setLoginError("Email, NIK, atau Nomor Telepon wajib diisi.")
@@ -88,7 +87,6 @@ export default function LoginPage() {
                 body: JSON.stringify({
                     identifier,
                     password,
-                    rtCode,
                     role: selectedRole
                 })
             });
@@ -214,10 +212,7 @@ export default function LoginPage() {
                             <CheckCircle className="h-4 w-4 text-green-400" />
                             Custom Input Anggaran Dana
                         </li>
-                        <li className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-green-400" />
-                            AI-Powered Analysis & Saran
-                        </li>
+
                         <li className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4 text-green-400" />
                             Monitoring Budget Berkala
@@ -250,7 +245,6 @@ export default function LoginPage() {
                                 <CardTitle className="flex items-center gap-2">
                                     <Shield className="h-5 w-5 text-primary" />
                                     <span>Login</span>
-                                    <SecurityBadge level="high" className="ml-auto" />
                                 </CardTitle>
                                 <CardDescription>Akses dashboard warga RT 04</CardDescription>
                             </CardHeader>
@@ -327,19 +321,6 @@ export default function LoginPage() {
                                             autoComplete="current-password"
                                         />
                                     </div>
-                                </div>
-
-                                <div className="grid gap-2 p-2.5 bg-blue-50/40 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
-                                    <Label htmlFor="rtCode" className="text-xs font-semibold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                                        <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                        Kode Khusus RT (Opsional - Login Cepat / Verifikasi)
-                                    </Label>
-                                    <Input
-                                        id="rtCode"
-                                        name="rtCode"
-                                        placeholder="Contoh: RT04-WARGA-2026 atau WARGA04"
-                                        className="h-8 text-xs bg-white dark:bg-slate-900"
-                                    />
                                 </div>
 
                                 {/* Rate Limit Status */}

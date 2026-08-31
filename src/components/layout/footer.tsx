@@ -32,23 +32,17 @@ export function Footer() {
                     {/* Quick Links */}
                     <div>
                         <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-foreground">
-                            Layanan Digital
+                            Layanan Warga
                         </h4>
-                        <nav className="space-y-2.5" aria-label="Footer navigation - Layanan Digital">
-                            <Link href="/layanan" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Semua Layanan
-                            </Link>
+                        <nav className="space-y-2.5" aria-label="Footer navigation - Layanan Warga">
                             <Link href="/surat" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Surat Menyurat
+                                Urus Surat
                             </Link>
-                            <Link href="/keuangan/laporan" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Laporan Keuangan
+                            <Link href="/keuangan" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                                Laporan Kas RT
                             </Link>
                             <Link href="/surat/keamanan" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Lapor Keamanan
-                            </Link>
-                            <Link href="/layanan/administrasi" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Data Administrasi
+                                Lapor Masalah
                             </Link>
                         </nav>
                     </div>
@@ -67,12 +61,6 @@ export function Footer() {
                             </Link>
                             <Link href="/#pengurus" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                                 Pengurus RT
-                            </Link>
-                            <Link href="/#panduan-warga" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Panduan Warga Baru
-                            </Link>
-                            <Link href="/#about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
-                                Tentang PRISMA
                             </Link>
                             <Link href="/privacy" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                                 Kebijakan Privasi

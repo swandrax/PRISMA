@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { wargaGraphEngine } from "@/lib/warga-graph-rag";
-import { validateRTCode } from "@/lib/rt-auth-codes";
 import { logAudit } from "@/lib/audit-logger";
 import { getNeonSql } from "@/lib/neon";
 
@@ -20,7 +19,6 @@ export async function POST(req: NextRequest) {
       password,
       pekerjaan,
       statusKeluarga,
-      rtCode,
     } = body;
 
     if (!nama || !email || !telepon) {
@@ -29,17 +27,12 @@ export async function POST(req: NextRequest) {
 
     const targetRole = (role ? role.toUpperCase() : "WARGA") as "WARGA" | "PENGURUS" | "ADMIN";
 
-    // 🔒 SECURITY: Validate RT Verification Passcode
-    const codeValidation = validateRTCode(rtCode || "", targetRole);
-    if (!codeValidation.valid) {
-      logAudit({
-        actor: email,
-        action: "LOGIN_FAILED",
-        resource: "AuthRegister",
-        details: `Registrasi ditolak: Kode RT '${rtCode}' tidak valid untuk role ${targetRole}`,
-      });
-      return NextResponse.json({ success: false, error: codeValidation.error }, { status: 403 });
+    // In a real app, role escalation to PENGURUS/ADMIN should be handled via admin dashboard or email invites.
+    // We only allow WARGA registration automatically. PENGURUS/ADMIN requires manual DB update.
+    if (targetRole !== "WARGA") {
+      return NextResponse.json({ success: false, error: "Registrasi otomatis hanya untuk warga. Hubungi admin untuk akses pengurus." }, { status: 403 });
     }
+
 
     // Check if citizen already registered
     const existing = wargaGraphEngine.findByCredentials(email) || (nik ? wargaGraphEngine.findByCredentials(nik) : null);
@@ -54,7 +47,7 @@ export async function POST(req: NextRequest) {
     const generatedNik = nik || `317101${Math.floor(1000000000 + Math.random() * 9000000000)}`;
     const generatedKK = noKK || `317101100101${Math.floor(1000 + Math.random() * 9000)}`;
     const sanitizedEmail = email.toLowerCase().trim();
-    const userRole = targetRole;
+    const userRole = targetRole as "WARGA" | "PENGURUS" | "ADMIN";
 
     // ⚡ REAL-TIME: Insert into Neon Postgres Database
     try {
@@ -70,7 +63,7 @@ export async function POST(req: NextRequest) {
       const createdUserId = userRes[0]?.id;
 
       // 2. Insert into Warga table
-      const wargaRes = await sql`
+      await sql`
         INSERT INTO "Warga" (
           "id", "userId", "nik", "noKK", "nama", "alamat", "blok", "noRumah",
           "rt", "rw", "telepon", "email", "role", "status", "pekerjaan", "statusKeluarga"
@@ -85,14 +78,7 @@ export async function POST(req: NextRequest) {
         RETURNING "id";
       `;
 
-      // 3. If role is Pengurus, link to Pengurus table
-      if (userRole === "PENGURUS" && wargaRes[0]?.id) {
-        await sql`
-          INSERT INTO "Pengurus" ("wargaId", "jabatan", "periode")
-          VALUES (${wargaRes[0].id}, 'Pengurus RT 04', '2024-2027')
-          ON CONFLICT ("wargaId") DO NOTHING;
-        `;
-      }
+
 
       // 4. Log to AuditLog table in Neon
       await sql`
@@ -135,7 +121,7 @@ export async function POST(req: NextRequest) {
       action: "REGISTER_WARGA",
       resource: "Warga",
       resourceId: newNode.id,
-      details: `Pendaftaran real-time akun ${newNode.role} dengan kode RT '${rtCode}': ${newNode.nama}`,
+      details: `Pendaftaran real-time akun ${newNode.role}: ${newNode.nama}`,
     });
 
     return NextResponse.json({

@@ -169,7 +169,7 @@ export default function CustomKeuanganPage() {
         };
     }, [transactions, budgetAllocations, saldoAwal]);
 
-    // AI-powered recommendations
+    // Saran Otomatis
     const recommendations = useMemo((): AIRecommendation[] => {
         const recs: AIRecommendation[] = [];
 
@@ -679,10 +679,10 @@ export default function CustomKeuanganPage() {
                             <CardHeader className="bg-primary/5">
                                 <CardTitle className="flex items-center gap-2">
                                     <Brain className="h-5 w-5 text-primary" />
-                                    AI Analisis & Saran
+                                    Analisis & Saran
                                     {isAnalyzing && <RefreshCw className="h-4 w-4 animate-spin ml-auto" />}
                                 </CardTitle>
-                                <CardDescription>Rekomendasi real-time berdasarkan data</CardDescription>
+                                <CardDescription>Rekomendasi otomatis berdasarkan data</CardDescription>
                             </CardHeader>
                             <CardContent className="pt-4 space-y-3">
                                 {recommendations.length === 0 ? (

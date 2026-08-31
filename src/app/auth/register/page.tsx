@@ -32,14 +32,6 @@ export default function RegisterPage() {
         const phone = (form.elements.namedItem('phone') as HTMLInputElement).value
         const address = (form.elements.namedItem('address') as HTMLInputElement).value
         const password = (form.elements.namedItem('password') as HTMLInputElement).value
-        const rtCode = (form.elements.namedItem('rtCode') as HTMLInputElement)?.value || ''
-
-        // RT Code validation
-        if (!rtCode.trim()) {
-            setErrorMsg("Kode khusus pendaftaran dari Ketua RT / Admin wajib diisi.")
-            setIsLoading(false)
-            return
-        }
 
         // Email validation
         if (!validateEmailFormat(email)) {
@@ -72,8 +64,7 @@ export default function RegisterPage() {
                     telepon: phone,
                     alamat: address,
                     role: selectedRole,
-                    password,
-                    rtCode
+                    password
                 })
             });
 
@@ -273,22 +264,6 @@ export default function RegisterPage() {
                                     </div>
                                 </div>
 
-                                <div className="grid gap-2 p-3 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-lg">
-                                    <Label htmlFor="rtCode" className="text-blue-900 dark:text-blue-200 font-semibold flex items-center gap-1.5">
-                                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                        Kode Khusus RT (Diberikan Ketua RT / Admin)
-                                    </Label>
-                                    <Input
-                                        id="rtCode"
-                                        name="rtCode"
-                                        placeholder="Contoh: RT04-WARGA-2026 atau WARGA04"
-                                        className="bg-white dark:bg-slate-900 border-blue-300 dark:border-blue-800"
-                                        required
-                                    />
-                                    <p className="text-[11px] text-muted-foreground">
-                                        Hubungi Ketua RT (0878-7200-4448) atau Admin untuk mendapatkan kode otorisasi pendaftaran warga RT 04.
-                                    </p>
-                                </div>
                             </CardContent>
                             <CardFooter className="flex flex-col gap-4">
                                 <Button className="w-full" disabled={isLoading || !!successMsg}>

@@ -4,7 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { Menu, X, Bell, User, ChevronDown, FileText, BarChart3, ShieldAlert, ShieldCheck, LogOut, Settings } from "lucide-react"
+import { Menu, X, Bell, User, ChevronDown, LogOut } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { secureStorage } from "@/lib/security"
@@ -86,57 +86,18 @@ export function Navbar() {
                         <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
                             Beranda
                         </Link>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger id="radix-id-1" className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary outline-none">
-                                Layanan Digital <ChevronDown className="h-4 w-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                <DropdownMenuItem asChild>
-                                    <Link href="/layanan" className="flex items-center gap-2 cursor-pointer">
-                                        <FileText className="h-4 w-4" />
-                                        <span>Semua Layanan</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/surat" className="flex items-center gap-2 cursor-pointer">
-                                        <FileText className="h-4 w-4" />
-                                        <span>Surat Menyurat</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/keuangan/laporan" className="flex items-center gap-2 cursor-pointer">
-                                        <BarChart3 className="h-4 w-4" />
-                                        <span>Laporan Keuangan</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger id="radix-id-2" className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary outline-none">
-                                Respons & Keamanan <ChevronDown className="h-4 w-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                <DropdownMenuItem asChild>
-                                    <Link href="/surat/keamanan" className="flex items-center gap-2 cursor-pointer">
-                                        <ShieldAlert className="h-4 w-4" />
-                                        <span>Lapor Keamanan</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <Link href="/layanan/administrasi" className="flex items-center gap-2 cursor-pointer">
-                                        <ShieldCheck className="h-4 w-4" />
-                                        <span>Data Warga</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <Link href="#about" className="text-sm font-medium transition-colors hover:text-primary">
-                            Tentang Kami
+                        <Link href="/surat" className="text-sm font-medium transition-colors hover:text-primary">
+                            Layanan
                         </Link>
-
+                        <Link href="/keuangan/laporan" className="text-sm font-medium transition-colors hover:text-primary">
+                            Keuangan
+                        </Link>
+                        <Link href="/#jadwal" className="text-sm font-medium transition-colors hover:text-primary">
+                            Kegiatan
+                        </Link>
+                        <Link href="https://wa.me/6287872004448" className="text-sm font-medium transition-colors hover:text-primary">
+                            Bantuan
+                        </Link>
 
                     </div>
 
@@ -168,12 +129,6 @@ export function Navbar() {
                                             <span>Profil Saya</span>
                                         </Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
-                                            <Settings className="h-4 w-4" />
-                                            <span>Pengaturan</span>
-                                        </Link>
-                                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-red-500">
                                         <LogOut className="h-4 w-4" />
@@ -185,7 +140,7 @@ export function Navbar() {
                             <Button size="sm" className="gap-2" asChild>
                                 <Link href="/auth/login">
                                     <User className="h-4 w-4" />
-                                    Login Warga
+                                    Masuk
                                 </Link>
                             </Button>
                         )}
@@ -216,57 +171,28 @@ export function Navbar() {
                                 Beranda
                             </Link>
 
-
-
-                            <div className="space-y-3 pl-4 border-l-2 border-muted ml-2">
-                                <div className="text-sm font-semibold text-muted-foreground">Layanan Digital</div>
-                                <Link
-                                    href="/layanan"
-                                    className="block text-sm hover:text-primary"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Semua Layanan
-                                </Link>
-                                <Link
-                                    href="/surat"
-                                    className="block text-sm hover:text-primary"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Surat Menyurat
-                                </Link>
-                                <Link
-                                    href="/keuangan/laporan"
-                                    className="block text-sm hover:text-primary"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Laporan Keuangan
-                                </Link>
-                            </div>
-
-                            <div className="space-y-3 pl-4 border-l-2 border-muted ml-2">
-                                <div className="text-sm font-semibold text-muted-foreground">Respons & Keamanan</div>
-                                <Link
-                                    href="/surat/keamanan"
-                                    className="block text-sm hover:text-primary"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Lapor Keamanan
-                                </Link>
-                                <Link
-                                    href="/layanan/administrasi"
-                                    className="block text-sm hover:text-primary"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Data Warga
-                                </Link>
-                            </div>
-
                             <Link
-                                href="#about"
+                                href="/surat"
                                 className="text-sm font-medium hover:text-primary py-2"
                                 onClick={() => setIsOpen(false)}
                             >
-                                Tentang Kami
+                                Layanan
+                            </Link>
+
+                            <Link
+                                href="/keuangan/laporan"
+                                className="text-sm font-medium hover:text-primary py-2"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Keuangan
+                            </Link>
+
+                            <Link
+                                href="https://wa.me/6287872004448"
+                                className="text-sm font-medium hover:text-primary py-2"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Bantuan
                             </Link>
 
                             <div className="pt-4 flex items-center justify-between border-t mt-2">
