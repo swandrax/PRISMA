@@ -21,9 +21,11 @@ const outfit = Outfit({
   display: "swap",
 })
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://prisma-rose.vercel.app';
+
 // SEO Metadata Configuration
 export const metadata: Metadata = {
-  metadataBase: new URL('https://prisma-rt-04.vercel.app'), // Replace with your actual domain
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "PRISMA RT 04 Kemayoran - Sistem Warga Digital",
     template: "%s | PRISMA RT 04"
@@ -33,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "PRISMA RT 04 Kemayoran",
     description: "Sistem Manajemen Digital RT 04/RW 09 Kemayoran. Transparansi & Pelayanan dalam genggaman.",
-    url: 'https://prisma-rt-04.vercel.app',
+    url: SITE_URL,
     siteName: 'PRISMA RT 04',
     images: [
       {
@@ -85,8 +87,8 @@ const jsonLd = {
   "@type": "GovernmentService",
   "name": "Sekretariat RT 04 RW 09 Kemayoran",
   "alternateName": "PRISMA RT 04",
-  "url": "https://prisma-rt-04.vercel.app",
-  "image": "https://prisma-rt-04.vercel.app/og-image.jpg", // Placeholder
+  "url": SITE_URL,
+  "image": `${SITE_URL}/images/placeholders/banner.png`,
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Gg. Bugis No.95",

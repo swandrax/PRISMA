@@ -46,9 +46,13 @@ export default function SuratPage() {
 
     const handleDownload = (templateId: string, format: 'docx' | 'pdf') => {
         const downloadPath = getDownloadUrl(templateId, format);
-
-        // Show notification that file is being downloaded from templates folder
-        alert(`Template akan diunduh dari: ${downloadPath}\n\nSilakan tambahkan file template ke folder public/templates/surat/`);
+        const link = document.createElement('a');
+        link.href = downloadPath;
+        link.download = `${templateId}.${format}`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     if (loading) {
@@ -158,7 +162,7 @@ export default function SuratPage() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-xs text-gray-500 mb-3">
+                                <div className="text-xs text-purple-200/70 mb-3">
                                     Field diperlukan: {template.requiredFields.join(', ')}
                                 </div>
                             </CardContent>

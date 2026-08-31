@@ -191,10 +191,6 @@ export function GalleryShowcase() {
                                             </div>
                                         </div>
 
-                                        {/* Title overlay on hover */}
-                                        <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <h3 className="text-white font-bold text-lg drop-shadow-lg">{item.title}</h3>
-                                        </div>
                                     </div>
 
                                     {/* Caption */}

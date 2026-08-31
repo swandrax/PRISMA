@@ -40,10 +40,8 @@ export default function AdminLoginPage() {
         // Simulate API verification
         setTimeout(() => {
             setIsLoading(false)
-            // In real app, verify token and credentials
-            // router.push("/admin/dashboard")
-            alert("Login Berhasil! Mengalihkan ke Dashboard...")
-        }, 2000)
+            router.push("/admin/dashboard")
+        }, 1500)
     }
 
     return (
@@ -179,7 +177,7 @@ export default function AdminLoginPage() {
                     </CardContent>
                     <CardFooter className="justify-center border-t border-white/10 pt-4">
                         <p className="text-[10px] text-center text-blue-200/50">
-                            Protected by reCAPTCHA and Subject to <span className="underline cursor-pointer">Privacy Policy</span> & <span className="underline cursor-pointer">Terms</span>.
+                            Protected by reCAPTCHA and Subject to <Link href="/privacy" className="underline hover:text-white transition-colors">Privacy Policy</Link> & <Link href="/privacy" className="underline hover:text-white transition-colors">Terms</Link>.
                         </p>
                     </CardFooter>
                 </Card>

@@ -1,14 +1,13 @@
 "use client"
 
-import { useState, useEffect, FormEvent } from "react"
+import { useState, useSyncExternalStore, FormEvent } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
-    AlertTriangle,
     Phone,
     User,
     MapPin,
@@ -22,10 +21,17 @@ import {
     ShieldAlert
 } from "lucide-react"
 
+function getIsHttpsSnapshot() {
+    return typeof window !== "undefined" && window.location.protocol === "https:";
+}
+function subscribeHttps() {
+    return () => {};
+}
+
 export default function LaporanKeamananPage() {
     const [submitted, setSubmitted] = useState(false);
     const [ticketNumber, setTicketNumber] = useState("");
-    const [isHttps, setIsHttps] = useState(false);
+    const isHttps = useSyncExternalStore(subscribeHttps, getIsHttpsSnapshot, () => false);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -40,13 +46,6 @@ export default function LaporanKeamananPage() {
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
-
-    // Check for HTTPS dynamically on client mount
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            setIsHttps(window.location.protocol === "https:");
-        }
-    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -385,9 +384,6 @@ Laporan dikirim secara aman melalui portal digital PRISMA.`;
                                             <span>Minimal 20 karakter</span>
                                             <span>{formData.deskripsiKejadian.length} karakter</span>
                                         </div>
-                                        {errors.deskripsiKejained && (
-                                            <p className="text-red-500 text-xs font-semibold">{errors.deskripsiKejained}</p>
-                                        )}
                                         {errors.deskripsiKejadian && (
                                             <p className="text-red-500 text-xs font-semibold">{errors.deskripsiKejadian}</p>
                                         )}

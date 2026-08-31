@@ -4,6 +4,17 @@ import { uploadToS3 } from "@/lib/s3";
 
 export async function GET(req: NextRequest) {
   try {
+    const sessionCookie = req.cookies.get("warga_session")?.value;
+    const authHeader = req.headers.get("authorization");
+
+    // Protect user profile from public scraping
+    if (!sessionCookie && !authHeader) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: Silakan login untuk melihat profil warga." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id") || "warga-01"; // Default to RT leader profile if not specified
 

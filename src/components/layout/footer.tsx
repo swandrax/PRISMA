@@ -74,6 +74,9 @@ export function Footer() {
                             <Link href="/#about" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
                                 Tentang PRISMA
                             </Link>
+                            <Link href="/privacy" className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+                                Kebijakan Privasi
+                            </Link>
                         </nav>
                     </div>
 
@@ -125,6 +128,9 @@ export function Footer() {
                         <span className="hidden sm:inline">oleh Bang Swandaru Tirta</span>
                     </p>
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                        <Link href="/privacy" className="hover:text-primary transition-colors">
+                            Kebijakan Privasi
+                        </Link>
                         <Link href="/#about" className="hover:text-primary transition-colors">
                             Tentang
                         </Link>

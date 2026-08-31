@@ -64,11 +64,23 @@ export interface ResidentAdminDTO {
 
 export async function GET(req: NextRequest) {
   try {
+    const sessionCookie = req.cookies.get("warga_session")?.value;
+    const authHeader = req.headers.get("authorization");
+    const headerRole = req.headers.get("x-user-role")?.toUpperCase();
+
+    // STRICT SECURITY: Reject unauthenticated public scraping
+    if (!sessionCookie && !authHeader && !headerRole) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: Silakan login terlebih dahulu untuk mengakses data warga." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search")?.toLowerCase();
     const role = searchParams.get("role");
     const blok = searchParams.get("blok");
-    const authRole = req.headers.get("x-user-role")?.toUpperCase() || "ADMIN"; // Default to admin preview in dashboard
+    const authRole = headerRole || (sessionCookie ? "WARGA" : "PUBLIC");
 
     let nodes = wargaGraphEngine.getAllNodes();
 
