@@ -195,3 +195,58 @@ model AuditLog {
   @@index([action])
   @@index([createdAt])
 }
+
+enum LlmStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model LlmQueue {
+  id           String      @id @default(uuid())
+  taskType     String      // e.g., "SUMMARIZE_LAPORAN", "GENERATE_EMBEDDING"
+  payload      Json
+  status       LlmStatus   @default(PENDING)
+  result       Json?
+  errorMessage String?
+  retryCount   Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+  @@index([taskType])
+}
+
+model KnowledgeDocument {
+  id             String    @id @default(uuid())
+  filename       String
+  fileType       String    // "CSV", "TXT", "JSON", "JSONL"
+  version        String    @default("1.0")
+  status         String    @default("PROCESSED") // QUEUED, PROCESSING, COMPLETED, FAILED, PARTIALLY_COMPLETED
+  classification String    @default("INTERNAL") // PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
+  recordsTotal   Int       @default(0)
+  recordsFailed  Int       @default(0)
+  errorMessage   String?
+  fingerprint    String?   @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  chunks         KnowledgeChunk[]
+
+  @@index([status])
+  @@index([classification])
+}
+
+model KnowledgeChunk {
+  id             String    @id @default(uuid())
+  documentId     String
+  content        String
+  metadata       Json?     // { source, category, section, title }
+  order          Int       @default(0)
+  createdAt      DateTime  @default(now())
+  
+  document       KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}

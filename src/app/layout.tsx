@@ -7,7 +7,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { WhatsAppDirect } from "@/components/whatsapp-direct";
 import MbakPrismaChat from "@/components/chat/MbakPrismaChat";
 
 const geistMono = Geist_Mono({
@@ -147,7 +146,6 @@ export default function RootLayout({
               {children}
             </main>
             <InstallPrompt />
-            <WhatsAppDirect />
             <MbakPrismaChat />
             <Footer />
           </AuthProvider>

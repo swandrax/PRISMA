@@ -14,7 +14,7 @@
 
 import { createClient } from '@/utils/supabase/client';
 import type { User, Session, AuthError, AuthChangeEvent } from '@supabase/supabase-js';
-import { secureStorage, storeCredentials } from './security';
+import { secureStorage } from './security';
 
 // ============================================
 // Types
@@ -160,7 +160,6 @@ async function _signInWithRole(email: string, password: string, expectedRole: st
                 };
             }
 
-            syncLegacyStorage(authUser);
             return { success: true, user: authUser };
         }
 
@@ -390,9 +389,6 @@ export async function signOut(): Promise<void> {
     } catch {
         // Silent fail — clean up locally even if network fails
     }
-
-    // Clear legacy localStorage entries
-    clearLegacyStorage();
 }
 
 /**
@@ -408,8 +404,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         // Network error — check legacy storage
     }
 
-    // Fallback: check legacy localStorage
-    return getLegacyUser();
+    return null;
 }
 
 /**
@@ -439,10 +434,8 @@ export function onAuthStateChange(
         (_event: AuthChangeEvent, session: Session | null) => {
             if (session?.user) {
                 const authUser = mapSupabaseUser(session.user);
-                syncLegacyStorage(authUser);
                 callback(authUser);
             } else {
-                clearLegacyStorage();
                 callback(null);
             }
         }
@@ -562,8 +555,6 @@ export async function updateProfile(
             }
 
             const updatedUser = mapSupabaseUser(data.user);
-            syncLegacyStorage(updatedUser);
-
             return { success: true, user: updatedUser };
         }
 
@@ -630,7 +621,6 @@ async function signInWithDemoFallback(email: string, password: string, expectedR
                 },
             };
 
-            syncLegacyStorage(authUser);
             return { success: true, user: authUser };
         }
 
@@ -665,90 +655,3 @@ function mapAuthError(error: AuthError): string {
     return errorMap[error.message] || `Error: ${error.message}`;
 }
 
-// ============================================
-// Legacy Storage Sync (backward compatibility)
-// Will be removed once all components migrate
-// ============================================
-
-function syncLegacyStorage(user: AuthUser): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-        localStorage.setItem('warga_logged_in', 'true'); // Simple flag only (non-sensitive)
-        document.cookie = "warga_session=true; path=/; max-age=86400; SameSite=Lax; secure";
-
-        // SEC-FIX: Store profile in encrypted secureStorage instead of plaintext localStorage
-        const profileData = {
-            id: user.id,
-            nama: user.nama,
-            email: user.email,
-            telepon: user.metadata.no_telepon || '',
-            no_telepon: user.metadata.no_telepon || '',
-            alamat: user.metadata.alamat || '',
-            blok: user.metadata.blok || '',
-            no_rumah: user.metadata.no_rumah || '',
-            status: user.metadata.status || 'Aktif',
-            role: user.role,
-            permissions: user.permissions,
-            tanggal_daftar: new Date().toISOString().split('T')[0],
-        };
-        secureStorage.set('warga_profile', profileData, { encrypt: true, expiry: 24 * 60 * 60 * 1000 });
-
-        // SEC-FIX: Store credentials using encrypted storeCredentials()
-        storeCredentials({
-            userId: user.id,
-            role: user.role === 'admin' ? 'admin' : (user.role === 'pengurus' ? 'staff' : 'warga'),
-            sessionToken: crypto.randomUUID?.() ?? `session-${Date.now()}`,
-            expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        });
-    } catch {
-        // Storage quota exceeded or unavailable
-    }
-}
-
-function clearLegacyStorage(): void {
-    if (typeof window === 'undefined') return;
-
-    try {
-        localStorage.removeItem('warga_logged_in');
-        document.cookie = "warga_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
-        localStorage.removeItem('warga_profile');
-        localStorage.removeItem('warga_photo');
-        localStorage.removeItem('prisma_credentials');
-        // SEC-FIX: Also clear encrypted secure storage
-        secureStorage.remove('warga_profile');
-        secureStorage.remove('warga_photo');
-        secureStorage.clear();
-    } catch {
-        // Ignore
-    }
-}
-
-function getLegacyUser(): AuthUser | null {
-    if (typeof window === 'undefined') return null;
-
-    try {
-        const loggedIn = localStorage.getItem('warga_logged_in');
-        if (loggedIn !== 'true') return null;
-
-        // SEC-FIX: Try secureStorage first, then fallback to plaintext localStorage
-        const secureProfile = secureStorage.get<Record<string, unknown>>('warga_profile');
-        const profile = secureProfile || (() => {
-            const raw = localStorage.getItem('warga_profile');
-            return raw ? JSON.parse(raw) : null;
-        })();
-
-        if (!profile) return null;
-
-        return {
-            id: String(profile.id || ''),
-            email: (profile.email as string) || '',
-            nama: (profile.nama as string) || '',
-            role: (profile.role as AuthUser['role']) || 'warga',
-            permissions: (profile.permissions as string[]) || ROLE_PERMISSIONS.warga,
-            metadata: profile as Record<string, unknown>,
-        };
-    } catch {
-        return null;
-    }
-}

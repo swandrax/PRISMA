@@ -55,31 +55,6 @@ export default function RegisterPage() {
 
         let result: { success: boolean; error?: string } = { success: false };
         try {
-            const apiRes = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    nama: name,
-                    email,
-                    telepon: phone,
-                    alamat: address,
-                    role: selectedRole,
-                    password
-                })
-            });
-
-            if (apiRes.ok) {
-                const apiData = await apiRes.json();
-                if (apiData.success) {
-                    result = { success: true };
-                } else {
-                    result = { success: false, error: apiData.error };
-                }
-            } else {
-                const errData = await apiRes.json().catch(() => ({}));
-                result = { success: false, error: errData.error || "Gagal melakukan pendaftaran" };
-            }
-        } catch {
             if (selectedRole === 'admin') {
                 result = await signUpAdmin(email, password, metadata)
             } else if (selectedRole === 'pengurus') {
@@ -87,6 +62,8 @@ export default function RegisterPage() {
             } else {
                 result = await signUpWarga(email, password, metadata)
             }
+        } catch {
+            result = { success: false, error: "Pendaftaran gagal." }
         }
 
         setIsLoading(false)

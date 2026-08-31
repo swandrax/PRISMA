@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { Menu, X, Bell, User, ChevronDown, LogOut } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-import { secureStorage } from "@/lib/security"
+import { useAuth } from "@/hooks/useAuth"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -19,50 +19,14 @@ import {
 export function Navbar() {
     const router = useRouter()
     const [isOpen, setIsOpen] = React.useState(false)
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false)
-    const [userName, setUserName] = React.useState("")
-    const [userPhoto, setUserPhoto] = React.useState<string | null>(null)
+    const { user, isAuthenticated: isLoggedIn, signOut } = useAuth()
+    const userName = user?.nama || "Warga"
+    const userPhoto = user?.avatarUrl || null
 
-    // Check login status on mount
-    React.useEffect(() => {
-        const checkLogin = () => {
-            const loggedIn = localStorage.getItem('warga_logged_in') === 'true'
-            
-            // Safe decryption of profile using secureStorage helper
-            const profile = secureStorage.get<Record<string, unknown>>('warga_profile')
-            const photo = secureStorage.get<string>('warga_photo') || localStorage.getItem('warga_photo')
 
-            if (loggedIn && profile) {
-                setIsLoggedIn(true)
-                setUserName((profile.nama as string) || 'Warga')
-            } else {
-                setIsLoggedIn(false)
-                setUserName("")
-            }
 
-            if (photo) {
-                setUserPhoto(photo)
-            } else {
-                setUserPhoto(null)
-            }
-        }
-
-        checkLogin()
-        // Listen for storage changes
-        window.addEventListener('storage', checkLogin)
-        return () => window.removeEventListener('storage', checkLogin)
-    }, [])
-
-    const handleLogout = () => {
-        localStorage.removeItem('warga_logged_in')
-        localStorage.removeItem('warga_profile')
-        localStorage.removeItem('warga_photo')
-        secureStorage.remove('warga_profile')
-        secureStorage.remove('warga_photo')
-        document.cookie = "warga_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
-        setIsLoggedIn(false)
-        setUserName("")
-        setUserPhoto(null)
+    const handleLogout = async () => {
+        await signOut()
         router.push('/auth/login')
     }
 

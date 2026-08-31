@@ -8,14 +8,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, Loader2, CheckCircle, AlertCircle, Shield } from "lucide-react"
-import { signInAdmin, signInPengurus, signInWarga } from "@/lib/supabase-auth"
+import { signInAdmin, signInPengurus, signInWarga, type AuthUser } from "@/lib/supabase-auth"
 import {
     checkRateLimit,
     resetRateLimit,
     sanitizeInput,
-    logSecurityEvent,
-    storeCredentials,
-    secureStorage,
+    logSecurityEvent
 } from "@/lib/security"
 import { RateLimitWarning } from "@/components/ui/security"
 
@@ -59,67 +57,9 @@ export default function LoginPage() {
             return
         }
 
-        // Authenticate via Warga Knowledge Graph RAG API & Database
-        let result: {
-            success: boolean;
-            user?: {
-                id: string;
-                nama: string;
-                email: string;
-                role: string;
-                permissions?: string[];
-                metadata: {
-                    no_telepon?: string;
-                    tanggal_lahir?: string;
-                    alamat?: string;
-                    blok?: string;
-                    no_rumah?: string;
-                    status?: string;
-                };
-                avatarUrl?: string;
-            };
-            error?: string;
-        } = { success: false };
+        // Authenticate via Supabase Auth
+        let result: { success: boolean; user?: AuthUser; error?: string } = { success: false };
         try {
-            const apiRes = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    identifier,
-                    password,
-                    role: selectedRole
-                })
-            });
-
-            if (apiRes.ok) {
-                const apiData = await apiRes.json();
-                if (apiData.success && apiData.user) {
-                    result = {
-                        success: true,
-                        user: {
-                            id: apiData.user.id,
-                            nama: apiData.user.nama,
-                            email: apiData.user.email,
-                            role: apiData.user.role,
-                            permissions: [],
-                            metadata: {
-                                no_telepon: apiData.user.telepon,
-                                alamat: apiData.user.alamat,
-                                blok: apiData.user.blok,
-                                no_rumah: apiData.user.no_rumah,
-                                status: apiData.user.status,
-                            }
-                        }
-                    };
-                } else {
-                    result = { success: false, error: apiData.error };
-                }
-            } else {
-                const errData = await apiRes.json().catch(() => ({}));
-                result = { success: false, error: errData.error || "Gagal melakukan login" };
-            }
-        } catch {
-            // Fallback to local auth helpers
             if (selectedRole === 'admin') {
                 result = await signInAdmin(identifier, password)
             } else if (selectedRole === 'pengurus') {
@@ -127,42 +67,13 @@ export default function LoginPage() {
             } else {
                 result = await signInWarga(identifier, password)
             }
+        } catch {
+            result = { success: false, error: "Gagal melakukan login" };
         }
 
         if (result.success && result.user) {
             const user = result.user
             setLoginSuccess(true)
-
-            const tokenBytes = new Uint8Array(32);
-            crypto.getRandomValues(tokenBytes);
-            const sessionToken = Array.from(tokenBytes, b => b.toString(16).padStart(2, '0')).join('');
-
-            storeCredentials({
-                userId: String(user.id),
-                role: user.role === 'admin' ? 'admin' : (user.role === 'pengurus' ? 'staff' : 'warga'),
-                sessionToken,
-                expiresAt: Date.now() + (24 * 60 * 60 * 1000)
-            })
-
-            localStorage.setItem('warga_logged_in', 'true')
-            secureStorage.set('warga_profile', {
-                id: user.id,
-                nama: user.nama,
-                email: user.email,
-                telepon: user.metadata.no_telepon || '',
-                no_telepon: user.metadata.no_telepon || '',
-                tanggal_lahir: user.metadata.tanggal_lahir || '',
-                alamat: user.metadata.alamat || '',
-                blok: user.metadata.blok || '',
-                no_rumah: user.metadata.no_rumah || '',
-                foto_path: user.avatarUrl || '',
-                status: user.metadata.status || 'Aktif',
-                role: user.role,
-                permissions: user.permissions,
-                tanggal_daftar: new Date().toISOString().split('T')[0],
-            }, { encrypt: true, expiry: 24 * 60 * 60 * 1000 })
-
-            document.cookie = "warga_session=true; path=/; max-age=86400; SameSite=Lax; secure";
 
             resetRateLimit('login')
             logSecurityEvent('login_success', true, `User: ${user.email}, Role: ${user.role}`)

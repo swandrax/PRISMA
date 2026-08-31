@@ -60,3 +60,28 @@ export async function askAIGateway(
     return { text: "", error: message };
   }
 }
+
+/**
+ * Enqueue a background LLM task to the database.
+ * The task will be processed asynchronously by the /api/queue/llm worker.
+ */
+export async function enqueueLlmTask(
+  taskType: string,
+  payload: Record<string, unknown>
+): Promise<{ success: boolean; jobId?: string; error?: string }> {
+  try {
+    const { getNeonSql } = await import("./neon");
+    const sql = getNeonSql();
+    
+    const result = await sql`
+      INSERT INTO "LlmQueue" ("taskType", "payload", "status", "updatedAt")
+      VALUES (${taskType}, ${JSON.stringify(payload)}, 'PENDING', NOW())
+      RETURNING "id";
+    `;
+    
+    return { success: true, jobId: result[0].id };
+  } catch (error: unknown) {
+    console.error("Failed to enqueue LLM task:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Database error" };
+  }
+}
