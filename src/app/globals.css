@@ -841,3 +841,14 @@ html {
     margin-bottom: 1rem !important;
   }
 }
+
+/* Chatbot & QuickActions Visually Hidden Scrollbar Utility */
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

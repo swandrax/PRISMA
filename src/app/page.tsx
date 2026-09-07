@@ -1,6 +1,7 @@
 import dynamic from 'next/dynamic'
 import { Skeleton } from "@/components/ui/skeleton"
-import { SimpleHero } from "@/components/home/simple-hero"
+import { HeroCarousel } from "@/components/home/hero-carousel"
+import { FeatureCatalogue } from "@/components/home/feature-catalogue"
 import { QuickActions } from "@/components/home/quick-actions"
 import { RealtimeNotifications } from "@/components/home/realtime-notifications"
 
@@ -37,11 +38,14 @@ function SectionSkeleton({ height }: { height: string }) {
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Simplified Hero */}
-      <SimpleHero />
+      {/* PRD Hero Carousel */}
+      <HeroCarousel />
 
       {/* "Saya Mau..." Actions */}
       <QuickActions />
+
+      {/* PRD Feature Catalogue */}
+      <FeatureCatalogue />
 
       {/* Pengumuman */}
       <AnnouncementsFeed />

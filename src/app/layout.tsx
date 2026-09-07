@@ -8,6 +8,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import MbakPrismaChat from "@/components/chat/MbakPrismaChat";
+import { QueryProvider } from "@/queries/query-provider";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -140,15 +141,17 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <Navbar />
-            <main id="main-content" className="flex-1" role="main">
-              {children}
-            </main>
-            <InstallPrompt />
-            <MbakPrismaChat />
-            <Footer />
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Navbar />
+              <main id="main-content" className="flex-1" role="main">
+                {children}
+              </main>
+              <InstallPrompt />
+              <MbakPrismaChat />
+              <Footer />
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

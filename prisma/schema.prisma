@@ -11,6 +11,14 @@ enum Role {
   WARGA
   PENGURUS
   ADMIN
+  SUPER_ADMIN
+  ADMIN_RT
+  KETUA_RT
+  SEKRETARIS
+  BENDAHARA
+  SEKSI_KEAMANAN
+  SEKSI_SOSIAL
+  HUMAS
 }
 
 enum StatusWarga {
@@ -24,6 +32,13 @@ enum StatusSurat {
   DIPROSES
   SELESAI
   DITOLAK
+  SUBMITTED
+  VERIFICATION
+  APPROVAL
+  GENERATING
+  SIGNED
+  COMPLETED
+  REVISI
 }
 
 enum JenisTransaksi {
@@ -35,6 +50,56 @@ enum StatusLaporan {
   PENDING
   DIPROSES
   SELESAI
+}
+
+enum BillingStatus {
+  UNPAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum AspirationCategory {
+  KEAMANAN
+  KEBERSIHAN
+  INFRASTRUKTUR
+  ADMINISTRASI
+  SOSIAL
+  UMUM
+}
+
+enum AspirationStatus {
+  SUBMITTED
+  REVIEW
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum DocStatus {
+  VALID
+  REVOKED
+  EXPIRED
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  CONFLICT
+  FAILED
 }
 
 model User {
@@ -79,10 +144,13 @@ model Warga {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
-  user             User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  pengurus         Pengurus?
-  suratList        Surat[]
-  laporanList      LaporanKeamanan[]
+  user                 User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  pengurus             Pengurus?
+  suratList            Surat[]
+  laporanList          LaporanKeamanan[]
+  contributionBills    ContributionBill[]
+  aspirations          Aspiration[]
+  residentVerification ResidentVerification?
 
   @@index([nik])
   @@index([nama])
@@ -92,16 +160,16 @@ model Warga {
 }
 
 model Pengurus {
-  id               String    @id @default(uuid())
-  wargaId          String    @unique
-  jabatan          String    // Ketua RT, Sekretaris, Bendahara, Seksi Keamanan, Humas, dll.
-  periode          String    @default("2024-2027")
-  skPengangkatan   String?
-  statusAktif      Boolean   @default(true)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  wargaId        String    @unique
+  jabatan        String    // Ketua RT, Sekretaris, Bendahara, Seksi Keamanan, Humas, dll.
+  periode        String    @default("2024-2027")
+  skPengangkatan String?
+  statusAktif    Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  warga            Warga     @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+  warga          Warga     @relation(fields: [wargaId], references: [id], onDelete: Cascade)
 
   @@index([jabatan])
 }
@@ -121,50 +189,271 @@ model Surat {
   updatedAt        DateTime     @updatedAt
 
   warga            Warga        @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+  approvals        LetterApproval[]
+  revisions        LetterRevision[]
 
   @@index([wargaId])
   @@index([status])
   @@index([tanggalPengajuan])
 }
 
+model LetterApproval {
+  id           String    @id @default(uuid())
+  suratId      String
+  step         String    // VERIFICATION, APPROVAL, SIGNING
+  approverId   String?
+  approverNama String?
+  approverRole String?
+  status       String    // APPROVED, REJECTED, REVISION_REQUESTED
+  notes        String?
+  createdAt    DateTime  @default(now())
+
+  surat        Surat     @relation(fields: [suratId], references: [id], onDelete: Cascade)
+
+  @@index([suratId])
+}
+
+model LetterRevision {
+  id          String    @id @default(uuid())
+  suratId     String
+  requestedBy String?
+  reason      String
+  status      String    @default("OPEN") // OPEN, RESOLVED
+  requestedAt DateTime  @default(now())
+  resolvedAt  DateTime?
+
+  surat       Surat     @relation(fields: [suratId], references: [id], onDelete: Cascade)
+
+  @@index([suratId])
+}
+
 model Keuangan {
-  id               String          @id @default(uuid())
-  kodeTransaksi    String?         @unique
-  jenis            JenisTransaksi
-  kategori         String          // Iuran Warga, Kas RT, Donasi, Keamanan, Sampah, Listrik, Perbaikan
-  jumlah           Decimal         @db.Decimal(15, 2)
-  keterangan       String?
-  buktiBayarUrl    String?         // S3 receipt link
-  dicatatOleh      String?         // Nama/ID pencatat
-  tanggal          DateTime        @default(now())
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id            String          @id @default(uuid())
+  kodeTransaksi String?         @unique
+  jenis         JenisTransaksi
+  kategori      String          // Iuran Warga, Kas RT, Donasi, Keamanan, Sampah, Listrik, Perbaikan
+  jumlah        Decimal         @db.Decimal(15, 2)
+  keterangan    String?
+  buktiBayarUrl String?         // S3 receipt link
+  dicatatOleh   String?         // Nama/ID pencatat
+  tanggal       DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([jenis])
   @@index([kategori])
   @@index([tanggal])
 }
 
-model LaporanKeamanan {
-  id               String          @id @default(uuid())
-  nomorLaporan     String?         @unique
-  pelaporId        String
-  judul            String
-  deskripsi        String
-  lokasi           String?
-  status           StatusLaporan   @default(PENDING)
-  tingkatUrgensi   String          @default("SEDANG") // RENDAH, SEDANG, TINGGI, DARURAT
-  fotoBuktiUrl     String?         // S3 image link
-  tindakan         String?
-  tanggal          DateTime        @default(now())
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+model Contribution {
+  id        String             @id @default(uuid())
+  name      String             // e.g. "Iuran Keamanan RT", "Iuran Sampah & Kebersihan"
+  kategori  String             // Keamanan, Kebersihan, Sosial, Infrastruktur
+  amount    Decimal            @db.Decimal(15, 2)
+  periode   String             @default("BULANAN")
+  isActive  Boolean            @default(true)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 
-  pelapor          Warga           @relation(fields: [pelaporId], references: [id], onDelete: Cascade)
+  bills     ContributionBill[]
+
+  @@index([kategori])
+  @@index([isActive])
+}
+
+model ContributionBill {
+  id             String                @id @default(uuid())
+  contributionId String
+  wargaId        String
+  bulan          Int                   // 1 - 12
+  tahun          Int                   // e.g. 2026
+  amount         Decimal               @db.Decimal(15, 2)
+  status         BillingStatus         @default(UNPAID)
+  dueDate        DateTime
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  contribution   Contribution          @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  warga          Warga                 @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+  payments       ContributionPayment[]
+
+  @@unique([contributionId, wargaId, bulan, tahun])
+  @@index([wargaId])
+  @@index([status])
+  @@index([bulan, tahun])
+}
+
+model ContributionPayment {
+  id            String           @id @default(uuid())
+  billId        String
+  amount        Decimal          @db.Decimal(15, 2)
+  paymentMethod String           @default("TRANSFER_BANK") // TRANSFER_BANK, QRIS, TUNAI
+  buktiBayarUrl String?          // S3 upload link
+  status        PaymentStatus    @default(PENDING)
+  verifiedBy    String?
+  verifiedAt    DateTime?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  bill          ContributionBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@index([billId])
+  @@index([status])
+}
+
+model LaporanKeamanan {
+  id             String        @id @default(uuid())
+  nomorLaporan   String?       @unique
+  pelaporId      String
+  judul          String
+  deskripsi      String
+  lokasi         String?
+  status         StatusLaporan @default(PENDING)
+  tingkatUrgensi String        @default("SEDANG") // RENDAH, SEDANG, TINGGI, DARURAT
+  fotoBuktiUrl   String?       // S3 image link
+  tindakan       String?
+  tanggal        DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  pelapor        Warga         @relation(fields: [pelaporId], references: [id], onDelete: Cascade)
 
   @@index([pelaporId])
   @@index([status])
   @@index([tanggal])
+}
+
+model Aspiration {
+  id              String             @id @default(uuid())
+  nomorTiket      String             @unique
+  pelaporId       String
+  judul           String
+  deskripsi       String
+  kategori        AspirationCategory @default(UMUM)
+  status          AspirationStatus   @default(SUBMITTED)
+  tingkatUrgensi  String             @default("SEDANG") // RENDAH, SEDANG, TINGGI
+  fotoLampiranUrl String?
+  assignedTo      String?
+  resolutionNotes String?
+  rating          Int?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  pelapor         Warga              @relation(fields: [pelaporId], references: [id], onDelete: Cascade)
+
+  @@index([pelaporId])
+  @@index([status])
+  @@index([kategori])
+}
+
+model Announcement {
+  id             String    @id @default(uuid())
+  title          String
+  content        String
+  targetAudience String    @default("ALL") // ALL, RT_WIDE, BLOK, PENGURUS
+  targetBlock    String?   // e.g. "A", "B", "C"
+  channels       String[]  @default(["WEB"])
+  isPinned       Boolean   @default(false)
+  status         String    @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  scheduledAt    DateTime?
+  publishedAt    DateTime  @default(now())
+  authorId       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([targetAudience])
+  @@index([status])
+  @@index([publishedAt])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String?
+  wargaId   String?
+  type      String    // SURAT, IURAN, KEAMANAN, PENGUMUMAN, SISTEM
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([wargaId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model DocumentVerification {
+  id               String    @id @default(uuid())
+  documentType     String    // SURAT, KARTU_WARGA
+  documentId       String
+  verificationCode String    @unique
+  qrCodeData       String
+  status           DocStatus @default(VALID)
+  metadata         Json?     // Minimum safe public payload: { nama, jenis, rt, rw, issuedDate }
+  issuedAt         DateTime  @default(now())
+  expiresAt        DateTime?
+
+  @@index([verificationCode])
+  @@index([documentType, documentId])
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  name        String           @unique // e.g. "warga.read", "surat.approve"
+  description String?
+  module      String           // WARGA, SURAT, KEUANGAN, KEAMANAN, ADMIN
+  createdAt   DateTime         @default(now())
+
+  roles       RolePermission[]
+
+  @@index([name])
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         Role
+  permissionId String
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([role, permissionId])
+  @@index([role])
+}
+
+model ResidentVerification {
+  id         String             @id @default(uuid())
+  wargaId    String             @unique
+  prismaId   String             @unique // PRISMA-XXXX-XXXX
+  status     VerificationStatus @default(PENDING)
+  qrCodeUrl  String?
+  verifiedBy String?
+  verifiedAt DateTime?
+  notes      String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  warga      Warga              @relation(fields: [wargaId], references: [id], onDelete: Cascade)
+
+  @@index([prismaId])
+  @@index([status])
+}
+
+model OfflineSyncLog {
+  id               String     @id @default(uuid())
+  clientMutationId String     @unique
+  entity           String
+  action           String     // CREATE, UPDATE, DELETE
+  payload          Json
+  status           SyncStatus @default(PENDING)
+  errorMessage     String?
+  retryCount       Int        @default(0)
+  syncedAt         DateTime?
+  createdAt        DateTime   @default(now())
+
+  @@index([clientMutationId])
+  @@index([status])
 }
 
 model AuthCode {
@@ -181,18 +470,27 @@ model AuthCode {
 }
 
 model AuditLog {
-  id               String       @id @default(uuid())
-  userId           String?
-  action           String       // CREATE_WARGA, UPDATE_PROFILE, DELETE_WARGA, UPLOAD_S3
-  resource         String
-  details          String?
-  ipAddress        String?
-  createdAt        DateTime     @default(now())
+  id         String   @id @default(uuid())
+  userId     String?
+  actorId    String?
+  actorEmail String?
+  actorRole  String?
+  action     String   // CREATE_WARGA, UPDATE_PROFILE, DELETE_WARGA, UPLOAD_S3, APPROVE_SURAT, etc.
+  resource   String
+  resourceId String?
+  details    String?
+  metadata   Json?    // Safe metadata only, no passwords/secrets
+  ipAddress  String?
+  userAgent  String?
+  requestId  String?
+  createdAt  DateTime @default(now())
 
-  user             User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+  @@index([actorId])
   @@index([action])
+  @@index([resource])
   @@index([createdAt])
 }
 
@@ -204,33 +502,33 @@ enum LlmStatus {
 }
 
 model LlmQueue {
-  id           String      @id @default(uuid())
-  taskType     String      // e.g., "SUMMARIZE_LAPORAN", "GENERATE_EMBEDDING"
+  id           String    @id @default(uuid())
+  taskType     String    // e.g., "SUMMARIZE_LAPORAN", "GENERATE_EMBEDDING"
   payload      Json
-  status       LlmStatus   @default(PENDING)
+  status       LlmStatus @default(PENDING)
   result       Json?
   errorMessage String?
-  retryCount   Int         @default(0)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  retryCount   Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([status])
   @@index([taskType])
 }
 
 model KnowledgeDocument {
-  id             String    @id @default(uuid())
+  id             String           @id @default(uuid())
   filename       String
-  fileType       String    // "CSV", "TXT", "JSON", "JSONL"
-  version        String    @default("1.0")
-  status         String    @default("PROCESSED") // QUEUED, PROCESSING, COMPLETED, FAILED, PARTIALLY_COMPLETED
-  classification String    @default("INTERNAL") // PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
-  recordsTotal   Int       @default(0)
-  recordsFailed  Int       @default(0)
+  fileType       String           // "CSV", "TXT", "JSON", "JSONL"
+  version        String           @default("1.0")
+  status         String           @default("PROCESSED") // QUEUED, PROCESSING, COMPLETED, FAILED, PARTIALLY_COMPLETED
+  classification String           @default("INTERNAL") // PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED
+  recordsTotal   Int              @default(0)
+  recordsFailed  Int              @default(0)
   errorMessage   String?
-  fingerprint    String?   @unique
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  fingerprint    String?          @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   chunks         KnowledgeChunk[]
 
@@ -239,14 +537,14 @@ model KnowledgeDocument {
 }
 
 model KnowledgeChunk {
-  id             String    @id @default(uuid())
-  documentId     String
-  content        String
-  metadata       Json?     // { source, category, section, title }
-  order          Int       @default(0)
-  createdAt      DateTime  @default(now())
+  id         String            @id @default(uuid())
+  documentId String
+  content    String
+  metadata   Json?             // { source, category, section, title }
+  order      Int               @default(0)
+  createdAt  DateTime          @default(now())
   
-  document       KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document   KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId])
 }
