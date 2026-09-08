@@ -23,7 +23,7 @@ function AjukanSuratPage() {
 
       if (!res.ok) throw new Error('Gagal mengajukan surat');
       const data = await res.json();
-      navigate({ to: '/surat/$id', params: { id: data.id } as any });
+      navigate({ to: '/surat/$id', params: { id: String(data.id) } });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Terjadi kesalahan');
     } finally {

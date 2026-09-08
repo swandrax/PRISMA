@@ -24,6 +24,15 @@ export interface LetterTemplate {
     };
 }
 
+export interface FinanceTransaction {
+    id: string;
+    tanggal: string;
+    keterangan: string;
+    kategori: string;
+    tipe: 'pemasukan' | 'pengeluaran';
+    jumlah: number;
+}
+
 export interface FinanceReport {
     month?: string;
     income?: number;
@@ -36,7 +45,7 @@ export interface FinanceReport {
     total_pemasukan: number;
     total_pengeluaran: number;
     saldo_akhir: number;
-    transaksi: any[];
+    transaksi: FinanceTransaction[];
 }
 
 export interface FinanceSummary {

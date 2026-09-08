@@ -48,7 +48,7 @@ function WargaListPage() {
     },
   });
 
-  const columns = React.useMemo<ColumnDef<WargaItem, any>[]>(
+  const columns = React.useMemo<ColumnDef<WargaItem, unknown>[]>(
     () => [
       {
         accessorKey: 'nama',

@@ -5,6 +5,11 @@ import { getPublicTransparencyData } from './server/repositories/keuangan.repo';
 import { getWargaList, getOrCreateResidentCard } from './server/repositories/warga.repo';
 import { getSuratList, createSurat } from './server/repositories/surat.repo';
 
+import { getResidentBills, submitPaymentProof } from './server/repositories/iuran.repo';
+import { getKeamananList, createLaporanKeamanan } from './server/repositories/keamanan.repo';
+import { getAspirationsList, createAspiration } from './server/repositories/aspiration.repo';
+import { getActiveAnnouncements } from './server/repositories/announcement.repo';
+
 export {
   getSystemHealth,
   searchGlobal,
@@ -14,6 +19,13 @@ export {
   getOrCreateResidentCard,
   getSuratList,
   createSurat,
+  getResidentBills,
+  submitPaymentProof,
+  getKeamananList,
+  createLaporanKeamanan,
+  getAspirationsList,
+  createAspiration,
+  getActiveAnnouncements,
 };
 
 export async function handleApiRequest(req: Request): Promise<Response> {
@@ -68,7 +80,6 @@ export async function handleApiRequest(req: Request): Promise<Response> {
   }
 
   if (path.startsWith('/api/warga/card')) {
-    // Default demo/current user card
     const data = await getOrCreateResidentCard('default-resident');
     return new Response(JSON.stringify(data), {
       headers: { 'Content-Type': 'application/json' },
@@ -91,6 +102,84 @@ export async function handleApiRequest(req: Request): Promise<Response> {
     const page = Number(url.searchParams.get('page')) || 1;
     const limit = Number(url.searchParams.get('limit')) || 10;
     const data = await getSuratList({ page, limit });
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // 7. Iuran / Contribution endpoints
+  if (path === '/api/iuran/bills') {
+    const bills = await getResidentBills('default-resident');
+    return new Response(JSON.stringify(bills), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (path === '/api/iuran/pay' && req.method === 'POST') {
+    const body = await req.json();
+    const payment = await submitPaymentProof({
+      billId: String(body.billId),
+      amount: Number(body.amount),
+      paymentMethod: String(body.paymentMethod || 'TRANSFER_BANK'),
+      buktiBayarUrl: String(body.buktiBayarUrl || ''),
+      notes: body.notes ? String(body.notes) : undefined,
+      actorId: 'default-resident',
+    });
+    return new Response(JSON.stringify(payment), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // 8. Keamanan endpoints
+  if (path === '/api/keamanan') {
+    if (req.method === 'POST') {
+      const body = await req.json();
+      const laporan = await createLaporanKeamanan({
+        pelaporId: body.pelaporId || 'default-resident',
+        judul: body.judul,
+        deskripsi: body.deskripsi,
+        lokasi: body.lokasi,
+        tingkatUrgensi: body.tingkatUrgensi || 'SEDANG',
+        fotoBuktiUrl: body.fotoBuktiUrl,
+      });
+      return new Response(JSON.stringify(laporan), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    const data = await getKeamananList();
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // 9. Aspirasi endpoints
+  if (path === '/api/aspirasi') {
+    if (req.method === 'POST') {
+      const body = await req.json();
+      const aspirasi = await createAspiration({
+        pelaporId: body.pelaporId || 'default-resident',
+        judul: body.judul,
+        deskripsi: body.deskripsi,
+        kategori: body.kategori || 'UMUM',
+        tingkatUrgensi: body.tingkatUrgensi || 'SEDANG',
+        fotoLampiranUrl: body.fotoLampiranUrl,
+      });
+      return new Response(JSON.stringify(aspirasi), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    const data = await getAspirationsList();
+    return new Response(JSON.stringify(data), {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // 10. Pengumuman endpoints
+  if (path === '/api/pengumuman') {
+    const data = await getActiveAnnouncements();
     return new Response(JSON.stringify(data), {
       headers: { 'Content-Type': 'application/json' },
     });

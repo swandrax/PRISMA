@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/queries/query-keys';
 import { formatCurrencyIDR } from '@/lib/formatting';
-import { DollarSign, UploadCloud, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { DollarSign, UploadCloud, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PaymentProofModal } from '@/features/keuangan/iuran/payment-proof-modal';
 import { PaymentProofInput } from '@/lib/validation';
@@ -12,11 +12,20 @@ export const Route = createFileRoute('/keuangan/iuran')({
   component: IuranPage,
 });
 
+export interface IuranBillItem {
+  id: string;
+  name: string;
+  amount: number;
+  bulan: number;
+  tahun: number;
+  status: string;
+}
+
 function IuranPage() {
   const queryClient = useQueryClient();
-  const [selectedBill, setSelectedBill] = React.useState<any | null>(null);
+  const [selectedBill, setSelectedBill] = React.useState<IuranBillItem | null>(null);
 
-  const { data: bills = [], isLoading } = useQuery({
+  const { data: bills = [] } = useQuery<IuranBillItem[]>({
     queryKey: queryKeys.iuran.bills(),
     queryFn: async () => {
       const res = await fetch('/api/iuran/bills');
@@ -88,7 +97,7 @@ function IuranPage() {
 
       {/* Bill Cards List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {bills.map((b: any) => {
+        {bills.map((b: IuranBillItem) => {
           const isPaid = b.status === 'PAID';
           return (
             <div

@@ -6,16 +6,12 @@ import { Printer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function MarketingPage() {
-    const [portalUrl, setPortalUrl] = useState('https://prisma-rt-04.vercel.app')
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            // Default to the current origin if not localhost, otherwise use the vercel app URL
-            if (!window.location.origin.includes('localhost')) {
-                setPortalUrl(window.location.origin)
-            }
+    const [portalUrl] = useState(() => {
+        if (typeof window !== 'undefined' && !window.location.origin.includes('localhost')) {
+            return window.location.origin;
         }
-    }, [])
+        return 'https://prisma-rt-04.vercel.app';
+    });
 
     const handlePrint = () => {
         window.print()

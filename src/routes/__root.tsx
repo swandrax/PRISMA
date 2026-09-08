@@ -8,7 +8,7 @@ import { NotificationCenterDrawer } from '@/features/notifications/notification-
 import { initOfflineSyncListeners } from '@/lib/offline/sync-engine';
 import { useOfflineStore } from '@/stores/offline.store';
 import { WifiOff } from 'lucide-react';
-import { ChatbotContainer } from '@/components/chat/ChatbotContainer';
+import { ChatbotContainer } from '@/features/chatbot';
 
 export const Route = createRootRoute({
   component: RootComponent,

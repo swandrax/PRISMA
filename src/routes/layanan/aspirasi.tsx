@@ -5,18 +5,29 @@ import { queryKeys } from '@/queries/query-keys';
 import { AspirationForm } from '@/features/layanan/aspiration-form';
 import { AspirasiFormInput } from '@/lib/validation';
 import { formatDateID } from '@/lib/formatting';
-import { MessageSquare, Plus, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { MessageSquare, Plus, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/layanan/aspirasi')({
   component: AspirasiPage,
 });
 
+export interface AspirationItem {
+  id: string;
+  nomorTiket: string;
+  judul: string;
+  deskripsi: string;
+  kategori: string;
+  status: string;
+  createdAt: string | Date;
+  resolutionNotes?: string;
+}
+
 function AspirasiPage() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = React.useState(false);
 
-  const { data: aspirations = [], isLoading } = useQuery({
+  const { data: aspirations = [] } = useQuery<AspirationItem[]>({
     queryKey: queryKeys.aspirasi.lists(),
     queryFn: async () => {
       const res = await fetch('/api/aspirasi');
@@ -98,7 +109,7 @@ function AspirasiPage() {
         />
       ) : (
         <div className="space-y-4">
-          {aspirations.map((a: any) => {
+          {aspirations.map((a: AspirationItem) => {
             const isResolved = a.status === 'RESOLVED' || a.status === 'CLOSED';
             return (
               <div

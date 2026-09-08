@@ -57,7 +57,7 @@ export const analyticsService = {
 
         const expenseCategories = financeSummary.categories.map(c => ({
             name: c.kategori,
-            value: 'jumlah' in c ? (c as any).jumlah : c.avgBulanan
+            value: c.avgBulanan
         }));
 
         // --- ADMINISTRATIVE AGGREGATION (Mock for now since we don't have request tracking) ---

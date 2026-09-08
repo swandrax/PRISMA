@@ -26,12 +26,12 @@ function LaporKeamananPage() {
           entity: 'LAPORAN_KEAMANAN',
           action: 'CREATE',
           endpoint: '/api/keamanan',
-          payload: values as any,
+          payload: values as unknown as Record<string, unknown>,
         });
 
         useOfflineStore.getState().setPendingCount(useOfflineStore.getState().pendingCount + 1);
         alert('Anda sedang offline. Laporan disimpan di perangkat dan akan dikirim otomatis saat koneksi pulih.');
-        navigate({ to: '/keamanan' as any });
+        navigate({ to: '/keamanan' });
         return;
       }
 
@@ -43,7 +43,7 @@ function LaporKeamananPage() {
 
       if (!res.ok) throw new Error('Gagal mengirim laporan');
       alert('Laporan keamanan berhasil dikirim ke pengurus RT.');
-      navigate({ to: '/keamanan' as any });
+      navigate({ to: '/keamanan' });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Terjadi kesalahan');
     } finally {

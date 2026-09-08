@@ -42,7 +42,7 @@ function LoginPage() {
         }
 
         setUser(data.user);
-        navigate({ to: '/dashboard' as any });
+        navigate({ to: '/dashboard' });
       } catch (err) {
         setErrorMsg(err instanceof Error ? err.message : 'Terjadi kesalahan');
       } finally {
@@ -80,9 +80,8 @@ function LoginPage() {
           }}
           className="space-y-4"
         >
-          <form.Field
-            name="email"
-            children={(field) => (
+          <form.Field name="email">
+            {(field) => (
               <div className="space-y-1.5">
                 <Label htmlFor={field.name}>Alamat Email</Label>
                 <Input
@@ -99,11 +98,10 @@ function LoginPage() {
                 )}
               </div>
             )}
-          />
+          </form.Field>
 
-          <form.Field
-            name="password"
-            children={(field) => (
+          <form.Field name="password">
+            {(field) => (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor={field.name}>Kata Sandi</Label>
@@ -125,7 +123,7 @@ function LoginPage() {
                 )}
               </div>
             )}
-          />
+          </form.Field>
 
           <Button type="submit" disabled={isLoading} className="w-full gap-2 rounded-xl">
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
